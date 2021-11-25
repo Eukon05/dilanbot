@@ -7,9 +7,11 @@ import kong.unirest.Unirest;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
+@Component
 public class EightballListener implements MessageCreateListener {
 
     @Autowired
@@ -22,10 +24,18 @@ public class EightballListener implements MessageCreateListener {
 
             String value = messageCreateEvent.getMessageContent().replaceFirst("dilan 8ball", "");
 
-            HttpResponse<String> response = Unirest.get("https://8ball.delegator.com/magic/JSON/"+value).asString();
-            JsonObject responseJson = gson.fromJson(response.getBody(), JsonObject.class);
+            try {
 
-            messageCreateEvent.getChannel().sendMessage(responseJson.get("answer").getAsString());
+                HttpResponse<String> response = Unirest.get("https://8ball.delegator.com/magic/JSON/" + value).asString();
+                JsonObject responseJson = gson.fromJson(response.getBody(), JsonObject.class).get("magic").getAsJsonObject();
+
+                messageCreateEvent.getChannel().sendMessage(responseJson.get("answer").getAsString());
+
+            }
+            catch (Exception ex){
+                messageCreateEvent.getChannel().sendMessage("Something went wrong! " + ex.getMessage());
+                ex.printStackTrace();
+            }
 
         }
 

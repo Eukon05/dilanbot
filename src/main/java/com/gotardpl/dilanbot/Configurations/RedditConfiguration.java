@@ -1,5 +1,6 @@
 package com.gotardpl.dilanbot.Configurations;
 
+
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.NetworkAdapter;
 import net.dean.jraw.http.OkHttpNetworkAdapter;
@@ -13,21 +14,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RedditConfiguration {
 
-        @Value("reddit.username")
+        @Value("${reddit.username}")
         private String redditUsername;
 
-        @Value("reddit.password")
+        @Value("${reddit.password}")
         private String redditPassword;
 
-        @Value("reddit.clientid")
+        @Value("${reddit.clientid}")
         private String redditClientid;
-        @Value("reddit.clientsecret")
+        @Value("${reddit.clientsecret}")
 
         private String redditClientSecret;
-        @Value("artifact.id")
+        @Value("${artifact.id}")
         private String artifactId;
 
-        @Value("artifact.version")
+        @Value("${artifact.version}")
         private String artifactVersion;
 
         @Bean
@@ -46,3 +47,5 @@ public class RedditConfiguration {
 
 
 }
+
+
