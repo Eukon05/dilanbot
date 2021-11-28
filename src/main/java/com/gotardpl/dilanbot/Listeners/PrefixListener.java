@@ -1,33 +1,28 @@
 package com.gotardpl.dilanbot.Listeners;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.gotardpl.dilanbot.DTOs.ServerDTO;
 import com.gotardpl.dilanbot.Services.ServerService;
-import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
 @Component
-public class EightballListener implements MessageCreateListener {
+public class PrefixListener implements MessageCreateListener {
 
     private final ServerService serverService;
-    private final String keyWord = " 8ball";
-    private final Gson gson;
+    private final String keyWord = " prefix";
 
     @Autowired
-    public EightballListener(ServerService serverService, Gson gson){
+    public PrefixListener(ServerService serverService){
         this.serverService=serverService;
-        this.gson = gson;
     }
 
     @Override
     public void onMessageCreate(MessageCreateEvent messageCreateEvent) {
+
+        //I'm using Optional.get() without checks because they will always return an object, since we are retrieving a message from a channel on a server
 
         ServerDTO serverDTO = serverService.getServerById(messageCreateEvent.getServer().get().getId());
         String message = messageCreateEvent.getMessageContent();
@@ -36,20 +31,18 @@ public class EightballListener implements MessageCreateListener {
         if(!message.startsWith(serverDTO.getPrefix() + keyWord))
             return;
 
-        String value = message.replaceFirst(serverDTO.getPrefix() + keyWord, "").trim();
+        String newPrefix = message.replaceFirst(serverDTO.getPrefix() + keyWord,"").trim();
 
-        try {
-
-            HttpResponse<String> response = Unirest.get("https://8ball.delegator.com/magic/JSON/" + value).asString();
-            JsonObject responseJson = gson.fromJson(response.getBody(), JsonObject.class).get("magic").getAsJsonObject();
-
-            channel.sendMessage(responseJson.get("answer").getAsString());
-
+        if(newPrefix.isEmpty()){
+            channel.sendMessage("My current prefix is \"" +serverDTO.getPrefix()+"\", to change it, type: \n" +
+                    serverDTO.getPrefix()+" prefix [new prefix here]");
+            return;
         }
-        catch (Exception ex){
-            channel.sendMessage("Something went wrong! " + ex.getMessage());
-            ex.printStackTrace();
-        }
+
+        serverDTO.setPrefix(newPrefix);
+        serverService.updateServer(serverDTO);
+
+        channel.sendMessage("Done, my prefix will be \"" + newPrefix + "\" from now on!");
 
     }
 
