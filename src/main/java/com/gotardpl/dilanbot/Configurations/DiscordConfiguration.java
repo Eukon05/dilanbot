@@ -30,6 +30,18 @@ public class DiscordConfiguration {
     @Autowired
     RedditListener redditListener;
 
+    @Autowired
+    MusicPlayListener musicPlayListener;
+
+    @Autowired
+    MusicStopListener musicStopListener;
+
+    @Autowired
+    MusicSkipListener musicSkipListener;
+
+    @Autowired
+    MusicPauseListener musicPauseListener;
+
     @Bean
     DiscordApi discordApi(){
 
@@ -43,6 +55,10 @@ public class DiscordConfiguration {
         api.addMessageCreateListener(debugListener);
         api.addMessageCreateListener(prefixListener);
         api.addMessageCreateListener(redditListener);
+        api.addMessageCreateListener(musicPlayListener);
+        api.addMessageCreateListener(musicStopListener);
+        api.addMessageCreateListener(musicSkipListener);
+        api.addMessageCreateListener(musicPauseListener);
 
         return api;
     }

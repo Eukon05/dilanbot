@@ -1,10 +1,12 @@
-package com.gotardpl.dilanbot;
+package com.gotardpl.dilanbot.Lavaplayer;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.audio.AudioSource;
 import org.javacord.api.audio.AudioSourceBase;
+
+//Code taken from Javacord's documentation, thanks!
 
 public class LavaplayerAudioSource extends AudioSourceBase {
 
