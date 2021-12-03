@@ -19,9 +19,6 @@ public class DiscordConfiguration {
     EightballListener eightballListener;
 
     @Autowired
-    DebugListener debugListener;
-
-    @Autowired
     ServerJoinListenerImpl serverJoinListener;
 
     @Autowired
@@ -52,7 +49,6 @@ public class DiscordConfiguration {
 
         api.addServerJoinListener(serverJoinListener);
         api.addMessageCreateListener(eightballListener);
-        api.addMessageCreateListener(debugListener);
         api.addMessageCreateListener(prefixListener);
         api.addMessageCreateListener(redditListener);
         api.addMessageCreateListener(musicPlayListener);
