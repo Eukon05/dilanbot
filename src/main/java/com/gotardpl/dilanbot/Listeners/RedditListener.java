@@ -37,7 +37,17 @@ public class RedditListener implements MessageCreateListener {
 
         String subreddit = message.replaceFirst(serverDTO.getPrefix() + keyWord,"").trim();
 
-        Submission submission = redditClient.subreddit(subreddit).randomSubmission().getSubject();
+        Submission submission;
+
+        try {
+
+             submission = redditClient.subreddit(subreddit).randomSubmission().getSubject();
+        }
+        catch(Exception ex){
+            channel.sendMessage("Something went wrong! " + ex.getMessage());
+            ex.printStackTrace();
+            return;
+        }
 
         boolean validPost = false;
         while(!validPost){
