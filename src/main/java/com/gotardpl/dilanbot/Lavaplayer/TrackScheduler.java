@@ -8,7 +8,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-//Code taken from Lavaplayer's github page, thanks!
+//Code taken from Lavaplayer's samples, thanks!
 
 
 public class TrackScheduler extends AudioEventAdapter {

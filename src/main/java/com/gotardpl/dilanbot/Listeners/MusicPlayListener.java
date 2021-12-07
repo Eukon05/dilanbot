@@ -74,6 +74,7 @@ public class MusicPlayListener implements MessageCreateListener {
             messageCreateEvent.getMessageAuthor().getConnectedVoiceChannel().get().connect().thenAccept(audioConnection -> {
 
                 audioConnection.setAudioSource(manager.audioSource);
+                playerManager.addServerAudioConnection(serverDTO.getId(), audioConnection);
 
             }).exceptionally(e -> {
                 channel.sendMessage("Something went wrong! " + e.getMessage());

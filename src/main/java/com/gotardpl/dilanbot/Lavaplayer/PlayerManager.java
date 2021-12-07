@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.audio.AudioConnection;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -29,6 +30,7 @@ public class PlayerManager {
     }
 
     private final HashMap<Long, ServerMusicManager> playersMap = new HashMap<>();
+    private final HashMap<Long, AudioConnection> connectionsMap = new HashMap<>();
 
     public ServerMusicManager getServerMusicManager(Long serverID){
 
@@ -41,6 +43,20 @@ public class PlayerManager {
 
         return manager;
 
+    }
+
+    public AudioConnection getServerAudioConnection(Long serverID){
+
+        return connectionsMap.get(serverID);
+
+    }
+
+    public void removeServerAudioConnection(Long serverID){
+        connectionsMap.remove(serverID);
+    }
+
+    public void addServerAudioConnection(Long serverID, AudioConnection audioConnection){
+        connectionsMap.put(serverID, audioConnection);
     }
 
     public void loadAndPlay(ServerTextChannel textChannel, String trackUrl){

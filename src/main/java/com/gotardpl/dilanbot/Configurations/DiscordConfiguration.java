@@ -3,6 +3,7 @@ package com.gotardpl.dilanbot.Configurations;
 import com.gotardpl.dilanbot.Listeners.*;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.listener.channel.server.voice.ServerVoiceChannelMemberLeaveListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +40,9 @@ public class DiscordConfiguration {
     @Autowired
     MusicPauseListener musicPauseListener;
 
+    @Autowired
+    VoiceChannelLeaveListener voiceChannelLeaveListener;
+
     @Bean
     DiscordApi discordApi(){
 
@@ -55,6 +59,7 @@ public class DiscordConfiguration {
         api.addMessageCreateListener(musicStopListener);
         api.addMessageCreateListener(musicSkipListener);
         api.addMessageCreateListener(musicPauseListener);
+        api.addServerVoiceChannelMemberLeaveListener(voiceChannelLeaveListener);
 
         return api;
     }

@@ -2,7 +2,10 @@ package com.gotardpl.dilanbot.Listeners;
 
 import com.gotardpl.dilanbot.DTOs.ServerDTO;
 import com.gotardpl.dilanbot.Services.ServerService;
+import lombok.extern.slf4j.Slf4j;
+import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
+import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Submission;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
@@ -40,11 +43,32 @@ public class RedditListener implements MessageCreateListener {
         Submission submission;
 
         try {
-
              submission = redditClient.subreddit(subreddit).randomSubmission().getSubject();
         }
-        catch(Exception ex){
-            channel.sendMessage("Something went wrong! " + ex.getMessage());
+        catch(NetworkException ex){
+            int status = ex.getRes().getCode();
+
+            if(status==404)
+                    channel.sendMessage("This subreddit doesn't exist!");
+
+            else
+                channel.sendMessage("An unknown HTTP error has occurred: " + ex.getMessage());
+
+
+            ex.printStackTrace();
+            return;
+        }
+
+        catch (ApiException ex){
+
+            int status =  Integer.parseInt(ex.getCode());
+
+            if(status==403)
+                channel.sendMessage("This subreddit is private!");
+
+            else
+                channel.sendMessage("An unknown API error has occurred: " + ex.getMessage());
+
             ex.printStackTrace();
             return;
         }
