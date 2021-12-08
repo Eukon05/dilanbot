@@ -9,7 +9,6 @@ import org.javacord.api.listener.channel.server.voice.ServerVoiceChannelMemberLe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 
 @Component
 public class VoiceChannelLeaveListener implements ServerVoiceChannelMemberLeaveListener {

@@ -16,10 +16,10 @@ public class ServerJoinListenerImpl implements org.javacord.api.listener.server.
     }
 
     @Override
-    public void onServerJoin(ServerJoinEvent serverJoinEvent) {
+    public void onServerJoin(ServerJoinEvent event) {
 
-        if(serverService.getServerById(serverJoinEvent.getServer().getId())==null)
-            serverService.addServer(serverJoinEvent.getServer().getId());
+        if(serverService.getServerById(event.getServer().getId())==null)
+            serverService.addServer(event.getServer().getId());
 
     }
 }

@@ -2,7 +2,6 @@ package com.gotardpl.dilanbot.Listeners;
 
 import com.gotardpl.dilanbot.DTOs.ServerDTO;
 import com.gotardpl.dilanbot.Services.ServerService;
-import lombok.extern.slf4j.Slf4j;
 import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.NetworkException;
@@ -16,24 +15,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RedditListener implements MessageCreateListener {
+public class RedditMessageListener implements MessageCreateListener {
 
     private final ServerService serverService;
     private final RedditClient redditClient;
     private final String keyWord = " reddit";
 
     @Autowired
-    public RedditListener(ServerService serverService, RedditClient redditClient){
+    public RedditMessageListener(ServerService serverService, RedditClient redditClient){
         this.serverService=serverService;
         this.redditClient=redditClient;
     }
 
     @Override
-    public void onMessageCreate(MessageCreateEvent messageCreateEvent) {
+    public void onMessageCreate(MessageCreateEvent event) {
 
-        ServerDTO serverDTO = serverService.getServerById(messageCreateEvent.getServer().get().getId());
-        String message = messageCreateEvent.getMessageContent();
-        ServerTextChannel channel = messageCreateEvent.getServerTextChannel().get();
+        ServerDTO serverDTO = serverService.getServerById(event.getServer().get().getId());
+        String message = event.getMessageContent();
+        ServerTextChannel channel = event.getServerTextChannel().get();
 
         if(!message.startsWith(serverDTO.getPrefix() + keyWord))
             return;

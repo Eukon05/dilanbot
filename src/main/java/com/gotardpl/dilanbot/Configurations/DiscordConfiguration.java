@@ -3,7 +3,6 @@ package com.gotardpl.dilanbot.Configurations;
 import com.gotardpl.dilanbot.Listeners.*;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
-import org.javacord.api.listener.channel.server.voice.ServerVoiceChannelMemberLeaveListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,31 +16,34 @@ public class DiscordConfiguration {
     private String discordToken;
 
     @Autowired
-    EightballListener eightballListener;
+    EightballMessageListener eightballMessageListener;
 
     @Autowired
     ServerJoinListenerImpl serverJoinListener;
 
     @Autowired
-    PrefixListener prefixListener;
+    PrefixMessageListener prefixMessageListener;
 
     @Autowired
-    RedditListener redditListener;
+    RedditMessageListener redditMessageListener;
 
     @Autowired
-    MusicPlayListener musicPlayListener;
+    MusicPlayMessageListener musicPlayMessageListener;
 
     @Autowired
-    MusicStopListener musicStopListener;
+    MusicStopMessageListener musicStopMessageListener;
 
     @Autowired
-    MusicSkipListener musicSkipListener;
+    MusicSkipMessageListener musicSkipMessageListener;
 
     @Autowired
-    MusicPauseListener musicPauseListener;
+    MusicPauseMessageListener musicPauseMessageListener;
 
     @Autowired
     VoiceChannelLeaveListener voiceChannelLeaveListener;
+
+    @Autowired
+    DisconnectMessageListener disconnectMessageListener;
 
     @Bean
     DiscordApi discordApi(){
@@ -52,14 +54,15 @@ public class DiscordConfiguration {
                 .login().join();
 
         api.addServerJoinListener(serverJoinListener);
-        api.addMessageCreateListener(eightballListener);
-        api.addMessageCreateListener(prefixListener);
-        api.addMessageCreateListener(redditListener);
-        api.addMessageCreateListener(musicPlayListener);
-        api.addMessageCreateListener(musicStopListener);
-        api.addMessageCreateListener(musicSkipListener);
-        api.addMessageCreateListener(musicPauseListener);
+        api.addMessageCreateListener(eightballMessageListener);
+        api.addMessageCreateListener(prefixMessageListener);
+        api.addMessageCreateListener(redditMessageListener);
+        api.addMessageCreateListener(musicPlayMessageListener);
+        api.addMessageCreateListener(musicStopMessageListener);
+        api.addMessageCreateListener(musicSkipMessageListener);
+        api.addMessageCreateListener(musicPauseMessageListener);
         api.addServerVoiceChannelMemberLeaveListener(voiceChannelLeaveListener);
+        api.addMessageCreateListener(disconnectMessageListener);
 
         return api;
     }

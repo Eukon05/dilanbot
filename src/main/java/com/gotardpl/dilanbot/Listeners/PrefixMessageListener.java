@@ -9,24 +9,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PrefixListener implements MessageCreateListener {
+public class PrefixMessageListener implements MessageCreateListener {
 
     private final ServerService serverService;
     private final String keyWord = " prefix";
 
     @Autowired
-    public PrefixListener(ServerService serverService){
+    public PrefixMessageListener(ServerService serverService){
         this.serverService=serverService;
     }
 
     @Override
-    public void onMessageCreate(MessageCreateEvent messageCreateEvent) {
+    public void onMessageCreate(MessageCreateEvent event) {
 
         //I'm using Optional.get() without checks because they will always return an object, since we are retrieving a message from a channel on a server
 
-        ServerDTO serverDTO = serverService.getServerById(messageCreateEvent.getServer().get().getId());
-        String message = messageCreateEvent.getMessageContent();
-        ServerTextChannel channel = messageCreateEvent.getServerTextChannel().get();
+        ServerDTO serverDTO = serverService.getServerById(event.getServer().get().getId());
+        String message = event.getMessageContent();
+        ServerTextChannel channel = event.getServerTextChannel().get();
 
         if(!message.startsWith(serverDTO.getPrefix() + keyWord))
             return;

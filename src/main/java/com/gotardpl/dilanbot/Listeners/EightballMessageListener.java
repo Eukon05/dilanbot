@@ -14,24 +14,24 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class EightballListener implements MessageCreateListener {
+public class EightballMessageListener implements MessageCreateListener {
 
     private final ServerService serverService;
     private final String keyWord = " 8ball";
     private final Gson gson;
 
     @Autowired
-    public EightballListener(ServerService serverService, Gson gson){
+    public EightballMessageListener(ServerService serverService, Gson gson){
         this.serverService=serverService;
         this.gson = gson;
     }
 
     @Override
-    public void onMessageCreate(MessageCreateEvent messageCreateEvent) {
+    public void onMessageCreate(MessageCreateEvent event) {
 
-        ServerDTO serverDTO = serverService.getServerById(messageCreateEvent.getServer().get().getId());
-        String message = messageCreateEvent.getMessageContent();
-        ServerTextChannel channel = messageCreateEvent.getServerTextChannel().get();
+        ServerDTO serverDTO = serverService.getServerById(event.getServer().get().getId());
+        String message = event.getMessageContent();
+        ServerTextChannel channel = event.getServerTextChannel().get();
 
         if(!message.startsWith(serverDTO.getPrefix() + keyWord))
             return;
