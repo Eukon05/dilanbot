@@ -12,15 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MusicStopMessageListener implements MessageCreateListener {
+public class MusicClearMessageListener implements MessageCreateListener {
 
     private final ServerService serverService;
     private final PlayerManager playerManager;
-    private final String keyWord = " stop";
-
+    private final String keyWord = " clear";
 
     @Autowired
-    public MusicStopMessageListener(ServerService serverService, PlayerManager playerManager){
+    public MusicClearMessageListener(ServerService serverService, PlayerManager playerManager){
         this.serverService=serverService;
         this.playerManager=playerManager;
     }
@@ -31,7 +30,7 @@ public class MusicStopMessageListener implements MessageCreateListener {
         ServerDTO serverDTO = serverService.getServerById(event.getServer().get().getId());
         String message = event.getMessageContent();
         ServerTextChannel channel = event.getServerTextChannel().get();
-        User me = event.getApi().getYourself();
+        User me  = event.getApi().getYourself();
 
         if(!message.startsWith(serverDTO.getPrefix() + keyWord))
             return;
@@ -48,15 +47,15 @@ public class MusicStopMessageListener implements MessageCreateListener {
 
         ServerMusicManager manager = playerManager.getServerMusicManager(serverDTO.getId());
 
-        if(manager.player.getPlayingTrack()==null) {
-            channel.sendMessage("**:x: Nothing is playing right now**");
+        int queueSize = manager.scheduler.getQueue().size();
+
+        if(queueSize==0){
+            channel.sendMessage("**The queue is empty!**");
             return;
         }
 
-        manager.player.stopTrack();
         manager.scheduler.clearQueue();
-        channel.sendMessage("**:no_entry: Music stopped**");
-
+        channel.sendMessage("**Cleared " + queueSize + " tracks from the queue!**");
 
 
     }

@@ -45,6 +45,8 @@ public class DiscordConfiguration {
     @Autowired
     DisconnectMessageListener disconnectMessageListener;
 
+    @Autowired MusicClearMessageListener musicClearMessageListener;
+
     @Bean
     DiscordApi discordApi(){
 
@@ -63,6 +65,7 @@ public class DiscordConfiguration {
         api.addMessageCreateListener(musicPauseMessageListener);
         api.addServerVoiceChannelMemberLeaveListener(voiceChannelLeaveListener);
         api.addMessageCreateListener(disconnectMessageListener);
+        api.addMessageCreateListener(musicClearMessageListener);
 
         return api;
     }
