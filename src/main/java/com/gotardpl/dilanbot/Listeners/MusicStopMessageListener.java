@@ -1,24 +1,39 @@
 package com.gotardpl.dilanbot.Listeners;
 
+import com.gotardpl.dilanbot.DTOs.ServerDTO;
+import com.gotardpl.dilanbot.Lavaplayer.PlayerManager;
 import com.gotardpl.dilanbot.Lavaplayer.ServerMusicManager;
+import com.gotardpl.dilanbot.Services.ServerService;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.listener.message.MessageCreateListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MusicStopMessageListener extends AbstractMusicMessageListener {
+public class MusicStopMessageListener implements MessageCreateListener {
+
+    private final ServerService serverService;
+    private final PlayerManager playerManager;
+    private final String keyWord = " stop";
+
 
     @Autowired
-    public MusicStopMessageListener(){
-        super(" stop");
+    public MusicStopMessageListener(ServerService serverService, PlayerManager playerManager){
+        this.serverService=serverService;
+        this.playerManager=playerManager;
     }
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
 
-        super.onMessageCreate(event);
+        ServerDTO serverDTO = serverService.getServerById(event.getServer().get().getId());
+        String message = event.getMessageContent();
+        ServerTextChannel channel = event.getServerTextChannel().get();
+        User me = event.getApi().getYourself();
 
-        if(!isCorrectListener)
+        if(!message.startsWith(serverDTO.getPrefix() + keyWord))
             return;
 
         if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
