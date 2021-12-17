@@ -1,54 +1,47 @@
 package com.gotardpl.dilanbot.Listeners;
 
-import com.gotardpl.dilanbot.DTOs.ServerDTO;
-import com.gotardpl.dilanbot.Services.ServerService;
 import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Submission;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.listener.message.MessageCreateListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RedditMessageListener implements MessageCreateListener {
+public class RedditMessageListener extends AbstractMessageListener {
 
-    private final ServerService serverService;
     private final RedditClient redditClient;
-    private final String keyWord = " reddit";
 
     @Autowired
-    public RedditMessageListener(ServerService serverService, RedditClient redditClient){
-        this.serverService=serverService;
-        this.redditClient=redditClient;
+    public RedditMessageListener(RedditClient redditClient){
+        super(" reddit");
+        this.redditClient = redditClient;
+
     }
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
+        super.onMessageCreate(event);
+    }
 
-        ServerDTO serverDTO = serverService.getServerById(event.getServer().get().getId());
-        String message = event.getMessageContent();
-        ServerTextChannel channel = event.getServerTextChannel().get();
+    @Override
+    void childOnMessageCreate(MessageCreateEvent event) {
 
-        if(!message.startsWith(serverDTO.getPrefix() + keyWord))
-            return;
-
-        String subreddit = message.replaceFirst(serverDTO.getPrefix() + keyWord,"").trim();
+        String subreddit = value;
 
         Submission submission;
 
         try {
-             submission = redditClient.subreddit(subreddit).randomSubmission().getSubject();
+            submission = redditClient.subreddit(subreddit).randomSubmission().getSubject();
         }
         catch(NetworkException ex){
             int status = ex.getRes().getCode();
 
             if(status==404)
-                    channel.sendMessage("This subreddit doesn't exist!");
+                channel.sendMessage("This subreddit doesn't exist!");
 
             else
                 channel.sendMessage("An unknown HTTP error has occurred: " + ex.getMessage());
@@ -71,6 +64,12 @@ public class RedditMessageListener implements MessageCreateListener {
             ex.printStackTrace();
             return;
         }
+
+        catch (Exception ex){
+            channel.sendMessage("An unknown error has occurred: " + ex.getMessage());
+            return;
+        }
+
 
         boolean validPost = false;
         while(!validPost){
@@ -105,7 +104,6 @@ public class RedditMessageListener implements MessageCreateListener {
         builder.send(channel);
 
         System.out.println(submission.getPermalink());
-
 
     }
 
