@@ -9,12 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractMessageListener implements MessageCreateListener {
 
-    String keyWord;
+    final String keyWord;
     ServerService serverService;
     ServerDTO serverDTO;
     String value;
     ServerTextChannel channel;
-    boolean isCorrectListener = true;
 
     public AbstractMessageListener(String keyWord){
         this.keyWord=keyWord;
@@ -32,13 +31,19 @@ public abstract class AbstractMessageListener implements MessageCreateListener {
         String message = event.getMessageContent();
 
         if(!message.startsWith(serverDTO.getPrefix() + keyWord)) {
-            isCorrectListener = false;
             return;
         }
 
         channel = event.getServerTextChannel().get();
         value = message.replaceFirst(serverDTO.getPrefix() + keyWord,"").trim();
 
+        childOnMessageCreate(event);
+
     }
+
+    //Thanks to StackOverflow user Joakim Danielson for coming up with a great idea of moving the listeners main code
+    //to another abstract method, instead of overriding onMessageCreate
+    //https://bit.ly/3p3zGrE
+    abstract void childOnMessageCreate(MessageCreateEvent event);
 
 }

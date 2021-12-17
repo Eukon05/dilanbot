@@ -15,11 +15,11 @@ public class MusicStopMessageListener extends AbstractMusicMessageListener {
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-
         super.onMessageCreate(event);
+    }
 
-        if(!isCorrectListener)
-            return;
+    @Override
+    void childOnMessageCreate(MessageCreateEvent event) {
 
         if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
             channel.sendMessage("I'm not connected to a voice channel!");
@@ -41,8 +41,6 @@ public class MusicStopMessageListener extends AbstractMusicMessageListener {
         manager.player.stopTrack();
         manager.scheduler.clearQueue();
         channel.sendMessage("**:no_entry: Music stopped**");
-
-
 
     }
 

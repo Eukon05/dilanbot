@@ -15,11 +15,11 @@ public class MusicSkipMessageListener extends AbstractMusicMessageListener {
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-
         super.onMessageCreate(event);
+    }
 
-        if(!isCorrectListener)
-            return;
+    @Override
+    void childOnMessageCreate(MessageCreateEvent event) {
 
         if(!(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())){
             channel.sendMessage("You have to be in the same channel as me!");
@@ -37,4 +37,5 @@ public class MusicSkipMessageListener extends AbstractMusicMessageListener {
         channel.sendMessage("**:fast_forward: Skipped**");
 
     }
+
 }

@@ -14,11 +14,11 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-
         super.onMessageCreate(event);
+    }
 
-        if(!isCorrectListener)
-            return;
+    @Override
+    void childOnMessageCreate(MessageCreateEvent event) {
 
         if(value.isEmpty()) {
             if (manager.player.isPaused()) {
@@ -37,12 +37,8 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
         }
 
         if (!value.contains("http") && !value.contains("://")) {
-            value = value.trim();
             value = "ytsearch:" + value;
         }
-
-        else
-            value = value.trim();
 
         if(me.getConnectedVoiceChannel(channel.getServer()).isEmpty()){
 
@@ -59,13 +55,12 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
 
         }
         else
-            if(!(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())){
-                channel.sendMessage("You have to be in the same channel as me!");
-                return;
-            }
+        if(!(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())){
+            channel.sendMessage("You have to be in the same channel as me!");
+            return;
+        }
 
         playerManager.loadAndPlay(channel, value);
-
 
     }
 

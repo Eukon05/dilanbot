@@ -24,8 +24,6 @@ public abstract class AbstractMusicMessageListener extends AbstractMessageListen
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
         super.onMessageCreate(event);
-        if(!isCorrectListener)
-            return;
 
         me = event.getApi().getYourself();
         manager = playerManager.getServerMusicManager(serverDTO.getId());

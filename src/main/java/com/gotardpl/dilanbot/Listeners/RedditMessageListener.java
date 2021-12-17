@@ -24,24 +24,24 @@ public class RedditMessageListener extends AbstractMessageListener {
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-
         super.onMessageCreate(event);
+    }
 
-        if(!isCorrectListener)
-            return;
+    @Override
+    void childOnMessageCreate(MessageCreateEvent event) {
 
         String subreddit = value;
 
         Submission submission;
 
         try {
-             submission = redditClient.subreddit(subreddit).randomSubmission().getSubject();
+            submission = redditClient.subreddit(subreddit).randomSubmission().getSubject();
         }
         catch(NetworkException ex){
             int status = ex.getRes().getCode();
 
             if(status==404)
-                    channel.sendMessage("This subreddit doesn't exist!");
+                channel.sendMessage("This subreddit doesn't exist!");
 
             else
                 channel.sendMessage("An unknown HTTP error has occurred: " + ex.getMessage());
@@ -64,6 +64,12 @@ public class RedditMessageListener extends AbstractMessageListener {
             ex.printStackTrace();
             return;
         }
+
+        catch (Exception ex){
+            channel.sendMessage("An unknown error has occurred: " + ex.getMessage());
+            return;
+        }
+
 
         boolean validPost = false;
         while(!validPost){
@@ -98,7 +104,6 @@ public class RedditMessageListener extends AbstractMessageListener {
         builder.send(channel);
 
         System.out.println(submission.getPermalink());
-
 
     }
 

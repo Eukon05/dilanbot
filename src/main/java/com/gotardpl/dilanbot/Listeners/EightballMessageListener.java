@@ -22,11 +22,11 @@ public class EightballMessageListener extends AbstractMessageListener {
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-
         super.onMessageCreate(event);
+    }
 
-        if(!isCorrectListener)
-            return;
+    @Override
+    void childOnMessageCreate(MessageCreateEvent event) {
 
         try {
 
