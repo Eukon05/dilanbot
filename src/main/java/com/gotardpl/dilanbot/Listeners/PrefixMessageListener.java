@@ -7,14 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PrefixMessageListener extends AbstractMessageListener {
 
-    @Autowired
     public PrefixMessageListener(){
         super(" prefix");
-    }
-
-    @Override
-    public void onMessageCreate(MessageCreateEvent event) {
-        super.onMessageCreate(event);
     }
 
     @Override

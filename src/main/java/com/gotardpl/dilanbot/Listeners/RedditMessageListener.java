@@ -23,11 +23,6 @@ public class RedditMessageListener extends AbstractMessageListener {
     }
 
     @Override
-    public void onMessageCreate(MessageCreateEvent event) {
-        super.onMessageCreate(event);
-    }
-
-    @Override
     void childOnMessageCreate(MessageCreateEvent event) {
 
         String subreddit = value;

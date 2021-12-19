@@ -21,11 +21,6 @@ public class EightballMessageListener extends AbstractMessageListener {
     }
 
     @Override
-    public void onMessageCreate(MessageCreateEvent event) {
-        super.onMessageCreate(event);
-    }
-
-    @Override
     void childOnMessageCreate(MessageCreateEvent event) {
 
         try {

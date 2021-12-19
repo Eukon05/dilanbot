@@ -1,6 +1,5 @@
 package com.gotardpl.dilanbot.Listeners;
 
-import com.gotardpl.dilanbot.Lavaplayer.ServerMusicManager;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -8,14 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class MusicStopMessageListener extends AbstractMusicMessageListener {
 
-    @Autowired
     public MusicStopMessageListener(){
         super(" stop");
-    }
-
-    @Override
-    public void onMessageCreate(MessageCreateEvent event) {
-        super.onMessageCreate(event);
     }
 
     @Override
@@ -31,14 +24,13 @@ public class MusicStopMessageListener extends AbstractMusicMessageListener {
             return;
         }
 
-        ServerMusicManager manager = playerManager.getServerMusicManager(serverDTO.getId());
-
         if(manager.player.getPlayingTrack()==null) {
             channel.sendMessage("**:x: Nothing is playing right now**");
             return;
         }
 
         manager.player.stopTrack();
+        manager.scheduler.loopTrack=null;
         manager.scheduler.clearQueue();
         channel.sendMessage("**:no_entry: Music stopped**");
 
