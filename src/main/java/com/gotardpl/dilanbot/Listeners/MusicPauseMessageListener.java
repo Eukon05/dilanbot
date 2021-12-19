@@ -7,14 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class MusicPauseMessageListener extends AbstractMusicMessageListener {
 
-    @Autowired
     public MusicPauseMessageListener(){
         super(" pause");
-    }
-
-    @Override
-    public void onMessageCreate(MessageCreateEvent event) {
-        super.onMessageCreate(event);
     }
 
     @Override

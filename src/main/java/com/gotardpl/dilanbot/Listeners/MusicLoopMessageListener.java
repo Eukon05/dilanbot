@@ -1,15 +1,13 @@
 package com.gotardpl.dilanbot.Listeners;
 
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MusicClearMessageListener extends AbstractMusicMessageListener {
+public class MusicLoopMessageListener extends AbstractMusicMessageListener{
 
-    public MusicClearMessageListener(){
-        super(" clear");
-
+    public MusicLoopMessageListener() {
+        super(" loop");
     }
 
     @Override
@@ -25,15 +23,20 @@ public class MusicClearMessageListener extends AbstractMusicMessageListener {
             return;
         }
 
-        int queueSize = manager.scheduler.getQueue().size();
-
-        if(queueSize==0){
-            channel.sendMessage("**The queue is empty!**");
+        if(manager.player.getPlayingTrack()==null) {
+            channel.sendMessage("**:x: Nothing is playing right now**");
             return;
         }
 
-        manager.scheduler.clearQueue();
-        channel.sendMessage("**Cleared " + queueSize + " tracks from the queue!**");
+        if(manager.scheduler.loopTrack==null) {
+            manager.scheduler.loopTrack = manager.player.getPlayingTrack();
+            channel.sendMessage("**:repeat_one: Looping " + manager.scheduler.loopTrack.getInfo().title + "**");
+        }
+        else {
+            manager.scheduler.loopTrack=null;
+            channel.sendMessage("**:warning: Loop disabled!**");
+        }
+
 
     }
 

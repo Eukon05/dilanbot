@@ -23,9 +23,10 @@ public abstract class AbstractMusicMessageListener extends AbstractMessageListen
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-        super.onMessageCreate(event);
-
         me = event.getApi().getYourself();
-        manager = playerManager.getServerMusicManager(serverDTO.getId());
+        manager = playerManager.getServerMusicManager(event.getServer().get().getId()); //I'm using server id from event, since serverDTO is not yet instantiated
+        super.onMessageCreate(event);
+        //for some reason I was able to instantiate the manager object in *this* line, despite it being required in the above method
+        //if someone knows why, please DM me on Discord, you can find my username on my GitHub
     }
 }

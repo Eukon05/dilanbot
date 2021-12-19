@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.gotardpl</groupId>
     <artifactId>dilanbot</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0a</version>
     <name>dilanbot</name>
     <description>dilanbot</description>
     <properties>
@@ -121,6 +121,9 @@
     </dependencies>
 
     <build>
+
+        <finalName>${name}</finalName>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -135,6 +138,7 @@
                 </configuration>
             </plugin>
         </plugins>
+
     </build>
 
     <profiles>

@@ -8,15 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class DisconnectMessageListener extends AbstractMusicMessageListener {
 
-
-    @Autowired
     public DisconnectMessageListener(){
         super(" disconnect");
-    }
-
-    @Override
-    public void onMessageCreate(MessageCreateEvent event) {
-        super.onMessageCreate(event);
     }
 
     @Override

@@ -36,6 +36,7 @@ public class VoiceChannelLeaveListener implements ServerVoiceChannelMemberLeaveL
 
             if(memberCount==0){
                 ServerMusicManager manager = playerManager.getServerMusicManager(event.getServer().getId());
+                manager.scheduler.loopTrack=null;
                 manager.scheduler.clearQueue();
                 manager.player.stopTrack();
                 playerManager.getServerAudioConnection(event.getServer().getId()).close();

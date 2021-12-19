@@ -8,14 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class MusicSkipMessageListener extends AbstractMusicMessageListener {
 
-    @Autowired
     public MusicSkipMessageListener(){
         super(" skip");
-    }
-
-    @Override
-    public void onMessageCreate(MessageCreateEvent event) {
-        super.onMessageCreate(event);
     }
 
     @Override
@@ -26,11 +20,14 @@ public class MusicSkipMessageListener extends AbstractMusicMessageListener {
             return;
         }
 
-        ServerMusicManager manager = playerManager.getServerMusicManager(serverDTO.getId());
-
         if(manager.player.getPlayingTrack()==null) {
             channel.sendMessage("**:x: Nothing is playing right now**");
             return;
+        }
+
+        if(manager.scheduler.loopTrack!=null){
+            manager.scheduler.loopTrack=null;
+            channel.sendMessage("**:warning: Loop disabled!**");
         }
 
         manager.scheduler.nextTrack();
