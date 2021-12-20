@@ -53,6 +53,9 @@ public class DiscordConfiguration {
     @Autowired
     MusicLoopMessageListener musicLoopMessageListener;
 
+    @Autowired
+    MusicLyricsMessageListener musicLyricsMessageListener;
+
     @Bean
     DiscordApi discordApi(){
 
@@ -73,6 +76,7 @@ public class DiscordConfiguration {
         api.addMessageCreateListener(disconnectMessageListener);
         api.addMessageCreateListener(musicClearMessageListener);
         api.addMessageCreateListener(musicLoopMessageListener);
+        api.addMessageCreateListener(musicLyricsMessageListener);
 
         return api;
     }
