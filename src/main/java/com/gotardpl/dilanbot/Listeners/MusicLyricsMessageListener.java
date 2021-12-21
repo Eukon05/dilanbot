@@ -8,8 +8,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
 
@@ -35,7 +33,8 @@ public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
                 return;
             }
 
-            if(!(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())){
+            if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
+                    !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
                 channel.sendMessage("You have to be in the same channel as me!");
                 return;
             }
