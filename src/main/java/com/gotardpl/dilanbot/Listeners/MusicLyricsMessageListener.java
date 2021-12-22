@@ -1,23 +1,41 @@
 package com.gotardpl.dilanbot.Listeners;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.stream.JsonReader;
 import core.GLA;
 import genius.SongSearch;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Locale;
 
 @Component
 public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
 
     private final GLA gla;
-
+    private final JsonArray wordList;
 
     @Autowired
-    public MusicLyricsMessageListener(GLA gla) {
+    public MusicLyricsMessageListener(GLA gla, Gson gson) throws IOException {
         super(" lyrics");
         this.gla=gla;
+
+        ResourceLoader resourceLoader = new DefaultResourceLoader();
+        Resource resource = resourceLoader.getResource("classpath:lyrics-wordlist.json");
+        wordList = gson.fromJson(FileCopyUtils.copyToString(new InputStreamReader(resource.getInputStream())), JsonArray.class);
     }
 
     @Override
@@ -47,7 +65,13 @@ public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
 
             try{
 
-                search = gla.search(manager.player.getPlayingTrack().getInfo().title);
+                String title = manager.player.getPlayingTrack().getInfo().title.toLowerCase(Locale.ROOT);
+
+                for(JsonElement element : wordList){
+                    title = title.replace(element.getAsJsonObject().get("value").getAsString(), " ");
+                }
+
+                search = gla.search(title);
                 hit = search.getHits().getFirst();
 
             }
