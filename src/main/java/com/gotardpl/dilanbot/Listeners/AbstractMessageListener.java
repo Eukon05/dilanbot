@@ -38,10 +38,14 @@ public abstract class AbstractMessageListener implements MessageCreateListener {
         if(!message.startsWith(serverDTO.getPrefix() + keyWord)) {
             if(!allowDefaultPrefix || !message.startsWith(defaultPrefix + keyWord))
                 return;
+            else
+                value = message.replaceFirst(defaultPrefix + keyWord,"").trim();
         }
+        else
+            value = message.replaceFirst(serverDTO.getPrefix() + keyWord,"").trim();
 
         channel = event.getServerTextChannel().get();
-        value = message.replaceFirst(serverDTO.getPrefix() + keyWord,"").trim();
+
 
         childOnMessageCreate(event);
 
