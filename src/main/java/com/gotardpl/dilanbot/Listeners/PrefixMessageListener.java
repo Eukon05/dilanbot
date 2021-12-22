@@ -1,7 +1,6 @@
 package com.gotardpl.dilanbot.Listeners;
 
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -9,6 +8,7 @@ public class PrefixMessageListener extends AbstractMessageListener {
 
     public PrefixMessageListener(){
         super(" prefix");
+        setAllowDefaultPrefix(true);
     }
 
     @Override

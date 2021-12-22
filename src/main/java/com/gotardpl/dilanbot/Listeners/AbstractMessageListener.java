@@ -6,14 +6,19 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 public abstract class AbstractMessageListener implements MessageCreateListener {
+
+    @Value("${prefix}")
+    private String defaultPrefix;
 
     final String keyWord;
     ServerService serverService;
     ServerDTO serverDTO;
     String value;
     ServerTextChannel channel;
+    private boolean allowDefaultPrefix = false;
 
     public AbstractMessageListener(String keyWord){
         this.keyWord=keyWord;
@@ -31,7 +36,8 @@ public abstract class AbstractMessageListener implements MessageCreateListener {
         String message = event.getMessageContent();
 
         if(!message.startsWith(serverDTO.getPrefix() + keyWord)) {
-            return;
+            if(!allowDefaultPrefix || !message.startsWith(defaultPrefix + keyWord))
+                return;
         }
 
         channel = event.getServerTextChannel().get();
@@ -46,4 +52,7 @@ public abstract class AbstractMessageListener implements MessageCreateListener {
     //https://bit.ly/3p3zGrE
     abstract void childOnMessageCreate(MessageCreateEvent event);
 
+    public void setAllowDefaultPrefix(boolean allowDefaultPrefix){
+        this.allowDefaultPrefix=allowDefaultPrefix;
+    }
 }
