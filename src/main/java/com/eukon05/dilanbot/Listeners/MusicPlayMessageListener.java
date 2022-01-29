@@ -17,61 +17,54 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
     @Override
     void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
 
-        Thread thread = new Thread(){
+        new Thread(() -> {
 
-            @Override
-            public void run(){
+            ServerTextChannel channel = event.getServerTextChannel().get();
+            String valueCopy = value; //Required, since variables accessed from inner classes have to be final, and we can't reassign the variable "value" directly
 
-                ServerTextChannel channel = event.getServerTextChannel().get();
-                String valueCopy = value; //Required, since variables accessed from inner classes have to be final, and we can't reassign the variable "value" directly
-
-                if(valueCopy.isEmpty()) {
-                    if (manager.player.isPaused()) {
-                        manager.player.setPaused(false);
-                        channel.sendMessage("**:arrow_forward: Music resumed**");
-                    }
-                    else
-                        channel.sendMessage("**:x: The track isn't paused!**");
-
-                    return;
-                }
-
-                if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty()){
-                    channel.sendMessage("You have to be connected to a voice channel!");
-                    return;
-                }
-
-                if (!valueCopy.contains("http") && !valueCopy.contains("://")) {
-                    valueCopy = "ytsearch:" + valueCopy;
-                }
-
-                if(me.getConnectedVoiceChannel(channel.getServer()).isEmpty()){
-
-                    event.getMessageAuthor().getConnectedVoiceChannel().get().connect().thenAccept(audioConnection -> {
-
-                        audioConnection.setAudioSource(manager.audioSource);
-                        playerManager.addServerAudioConnection(serverDTO.getId(), audioConnection);
-
-                    }).exceptionally(e -> {
-                        channel.sendMessage("Something went wrong! " + e.getMessage());
-                        e.printStackTrace();
-                        return null;
-                    });
-
+            if(valueCopy.isEmpty()) {
+                if (manager.player.isPaused()) {
+                    manager.player.setPaused(false);
+                    channel.sendMessage("**:arrow_forward: Music resumed**");
                 }
                 else
-                if(!(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())){
-                    channel.sendMessage("You have to be in the same channel as me!");
-                    return;
-                }
+                    channel.sendMessage("**:x: The track isn't paused!**");
 
-                playerManager.loadAndPlay(channel, valueCopy);
-
+                return;
             }
 
-        };
+            if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty()){
+                channel.sendMessage("You have to be connected to a voice channel!");
+                return;
+            }
 
-        thread.start();
+            if (!valueCopy.contains("http") && !valueCopy.contains("://")) {
+                valueCopy = "ytsearch:" + valueCopy;
+            }
+
+            if(me.getConnectedVoiceChannel(channel.getServer()).isEmpty()){
+
+                event.getMessageAuthor().getConnectedVoiceChannel().get().connect().thenAccept(audioConnection -> {
+
+                    audioConnection.setAudioSource(manager.audioSource);
+                    playerManager.addServerAudioConnection(serverDTO.getId(), audioConnection);
+
+                }).exceptionally(e -> {
+                    channel.sendMessage("Something went wrong! " + e.getMessage());
+                    e.printStackTrace();
+                    return null;
+                });
+
+            }
+            else
+            if(!(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())){
+                channel.sendMessage("You have to be in the same channel as me!");
+                return;
+            }
+
+            playerManager.loadAndPlay(channel, valueCopy);
+
+        }).start();
 
     }
 

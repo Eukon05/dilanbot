@@ -17,38 +17,31 @@ public class DisconnectMessageListener extends AbstractMusicMessageListener {
     @Override
     void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
 
-        Thread thread = new Thread(){
+        new Thread(() -> {
 
-            @Override
-            public void run(){
+            ServerTextChannel channel = event.getServerTextChannel().get();
 
-                ServerTextChannel channel = event.getServerTextChannel().get();
-
-                if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
-                    channel.sendMessage("I'm not connected to a voice channel!");
-                    return;
-                }
-
-                if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
-                        !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
-                    channel.sendMessage("You have to be in the same channel as me!");
-                    return;
-                }
-
-                //Here the track is stopped and the queue is cleared, I might change this behaviour in the future based on user feedback
-                manager.player.stopTrack();
-                manager.scheduler.clearQueue();
-
-                playerManager.getServerAudioConnection(serverDTO.getId()).close();
-                playerManager.removeServerAudioConnection(serverDTO.getId());
-
-                channel.sendMessage("**Disconnected from "+ me.getConnectedVoiceChannel(event.getServer().get()).get().getName() +" **");
-
+            if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
+                channel.sendMessage("I'm not connected to a voice channel!");
+                return;
             }
 
-        };
+            if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
+                    !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
+                channel.sendMessage("You have to be in the same channel as me!");
+                return;
+            }
 
-        thread.run();
+            //Here the track is stopped and the queue is cleared, I might change this behaviour in the future based on user feedback
+            manager.player.stopTrack();
+            manager.scheduler.clearQueue();
+
+            playerManager.getServerAudioConnection(serverDTO.getId()).close();
+            playerManager.removeServerAudioConnection(serverDTO.getId());
+
+            channel.sendMessage("**Disconnected from "+ me.getConnectedVoiceChannel(event.getServer().get()).get().getName() +" **");
+
+        }).start();
 
 
 

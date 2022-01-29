@@ -42,102 +42,95 @@ public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
     @Override
     void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
 
-        Thread thread = new Thread(){
+        new Thread(() -> {
 
-            @Override
-            public void run(){
+            ServerTextChannel channel = event.getServerTextChannel().get();
 
-                ServerTextChannel channel = event.getServerTextChannel().get();
+            SongSearch search;
+            SongSearch.Hit hit=null;
 
-                SongSearch search;
-                SongSearch.Hit hit=null;
+            if(value.isEmpty()){
 
-                if(value.isEmpty()){
-
-                    if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
-                        channel.sendMessage("I'm not connected to a voice channel!");
-                        return;
-                    }
-
-                    if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
-                            !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
-                        channel.sendMessage("You have to be in the same channel as me!");
-                        return;
-                    }
-
-                    if(manager.player.getPlayingTrack()==null) {
-                        channel.sendMessage("**:x: Nothing is playing right now**");
-                        return;
-                    }
-
-
-                    try{
-
-                        String title = manager.player.getPlayingTrack().getInfo().title.toLowerCase(Locale.ROOT);
-
-                        for(JsonElement element : wordList){
-                            title = title.replace(element.getAsJsonObject().get("value").getAsString(), " ");
-                        }
-
-                        search = gla.search(title);
-                        hit = search.getHits().getFirst();
-
-                    }
-
-                    catch (Exception e) {
-
-                        if(e.getMessage()==null)
-                            channel.sendMessage("Couldn't find the song on Genius, sorry :(");
-
-                        else
-                            channel.sendMessage("Something went wrong: " + e.getMessage());
-
-                        e.printStackTrace();
-
-                    }
-
+                if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
+                    channel.sendMessage("I'm not connected to a voice channel!");
+                    return;
                 }
-                else{
 
-                    try{
+                if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
+                        !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
+                    channel.sendMessage("You have to be in the same channel as me!");
+                    return;
+                }
 
-                        search = gla.search(value);
-                        hit = search.getHits().getFirst();
+                if(manager.player.getPlayingTrack()==null) {
+                    channel.sendMessage("**:x: Nothing is playing right now**");
+                    return;
+                }
 
+
+                try{
+
+                    String title = manager.player.getPlayingTrack().getInfo().title.toLowerCase(Locale.ROOT);
+
+                    for(JsonElement element : wordList){
+                        title = title.replace(element.getAsJsonObject().get("value").getAsString(), " ");
                     }
 
-                    catch (Exception e) {
-
-                        if(e.getMessage()==null)
-                            channel.sendMessage("Couldn't find the song on Genius, sorry :(");
-
-                        else
-                            channel.sendMessage("Something went wrong: " + e.getMessage());
-
-                        e.printStackTrace();
-
-                    }
+                    search = gla.search(title);
+                    hit = search.getHits().getFirst();
 
                 }
 
-                MessageBuilder builder = new MessageBuilder();
-                EmbedBuilder embedBuilder = new EmbedBuilder();
+                catch (Exception e) {
 
-                embedBuilder.setAuthor(hit.getArtist().getName());
-                embedBuilder.setTitle(hit.getTitle());
-                embedBuilder.setDescription(hit.fetchLyrics());
-                embedBuilder.setImage(hit.getImageUrl());
-                embedBuilder.setFooter("*Powered by Genius.com*");
+                    if(e.getMessage()==null)
+                        channel.sendMessage("Couldn't find the song on Genius, sorry :(");
 
-                builder.setEmbed(embedBuilder);
+                    else
+                        channel.sendMessage("Something went wrong: " + e.getMessage());
 
-                builder.send(channel);
+                    e.printStackTrace();
+
+                }
+
+            }
+            else{
+
+                try{
+
+                    search = gla.search(value);
+                    hit = search.getHits().getFirst();
+
+                }
+
+                catch (Exception e) {
+
+                    if(e.getMessage()==null)
+                        channel.sendMessage("Couldn't find the song on Genius, sorry :(");
+
+                    else
+                        channel.sendMessage("Something went wrong: " + e.getMessage());
+
+                    e.printStackTrace();
+
+                }
 
             }
 
-        };
+            MessageBuilder builder = new MessageBuilder();
+            EmbedBuilder embedBuilder = new EmbedBuilder();
 
-        thread.start();
+            embedBuilder.setAuthor(hit.getArtist().getName());
+            embedBuilder.setTitle(hit.getTitle());
+            embedBuilder.setDescription(hit.fetchLyrics());
+            embedBuilder.setImage(hit.getImageUrl());
+            embedBuilder.setFooter("*Powered by Genius.com*");
+
+            builder.setEmbed(embedBuilder);
+
+            builder.send(channel);
+
+        }).start();
 
     }
 }

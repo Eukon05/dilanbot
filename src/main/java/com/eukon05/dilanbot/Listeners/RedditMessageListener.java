@@ -28,91 +28,84 @@ public class RedditMessageListener extends AbstractMessageListener {
     @Override
     void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value) {
 
-        Thread thread = new Thread(){
+        new Thread(() -> {
 
-            @Override
-            public void run(){
+            ServerTextChannel channel = event.getServerTextChannel().get();
 
-                ServerTextChannel channel = event.getServerTextChannel().get();
+            Submission submission;
 
-                Submission submission;
+            try {
+                submission = redditClient.subreddit(value).randomSubmission().getSubject();
+            }
+            catch(NetworkException ex){
+                int status = ex.getRes().getCode();
 
-                try {
-                    submission = redditClient.subreddit(value).randomSubmission().getSubject();
-                }
-                catch(NetworkException ex){
-                    int status = ex.getRes().getCode();
+                if(status==404)
+                    channel.sendMessage("This subreddit doesn't exist!");
 
-                    if(status==404)
-                        channel.sendMessage("This subreddit doesn't exist!");
-
-                    else
-                        channel.sendMessage("An unknown HTTP error has occurred: " + ex.getMessage());
+                else
+                    channel.sendMessage("An unknown HTTP error has occurred: " + ex.getMessage());
 
 
-                    ex.printStackTrace();
-                    return;
-                }
+                ex.printStackTrace();
+                return;
+            }
 
-                catch (ApiException ex){
+            catch (ApiException ex){
 
-                    int status =  Integer.parseInt(ex.getCode());
+                int status =  Integer.parseInt(ex.getCode());
 
-                    if(status==403)
-                        channel.sendMessage("This subreddit is private!");
+                if(status==403)
+                    channel.sendMessage("This subreddit is private!");
 
-                    else
-                        channel.sendMessage("An unknown API error has occurred: " + ex.getMessage());
+                else
+                    channel.sendMessage("An unknown API error has occurred: " + ex.getMessage());
 
-                    ex.printStackTrace();
-                    return;
-                }
+                ex.printStackTrace();
+                return;
+            }
 
-                catch (Exception ex){
-                    channel.sendMessage("An unknown error has occurred: " + ex.getMessage());
-                    return;
-                }
-
-
-                boolean validPost = false;
-                while(!validPost){
-
-                    if(!(submission.getSelfText()!=null && submission.getUrl().contains("v.redd.it")))
-                        validPost=true;
-
-                }
-
-                String url = submission.getUrl();
+            catch (Exception ex){
+                channel.sendMessage("An unknown error has occurred: " + ex.getMessage());
+                return;
+            }
 
 
-                if(submission.isNsfw() && !channel.isNsfw()){
-                    channel.sendMessage("This isn't a time and place for that, use an NSFW-enabled channel");
-                    return;
-                }
+            boolean validPost = false;
+            while(!validPost){
 
-                MessageBuilder builder = new MessageBuilder();
-
-                EmbedBuilder embedBuilder = new EmbedBuilder()
-                        .setAuthor(submission.getAuthor())
-                        .setTitle(submission.getTitle())
-                        .setDescription(submission.getSelfText())
-                        .setUrl("https://reddit.com" + submission.getPermalink())
-                        .setFooter("A random post from r/" + value);
-
-
-                if(url!=null && url.contains("i.redd.it"))
-                    embedBuilder.setImage(url);
-
-                builder.setEmbed(embedBuilder);
-                builder.send(channel);
-
-                System.out.println(submission.getPermalink());
+                if(!(submission.getSelfText()!=null && submission.getUrl().contains("v.redd.it")))
+                    validPost=true;
 
             }
 
-        };
+            String url = submission.getUrl();
 
-        thread.start();
+
+            if(submission.isNsfw() && !channel.isNsfw()){
+                channel.sendMessage("This isn't a time and place for that, use an NSFW-enabled channel");
+                return;
+            }
+
+            MessageBuilder builder = new MessageBuilder();
+
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setAuthor(submission.getAuthor())
+                    .setTitle(submission.getTitle())
+                    .setDescription(submission.getSelfText())
+                    .setUrl("https://reddit.com" + submission.getPermalink())
+                    .setFooter("A random post from r/" + value);
+
+
+            if(url!=null && url.contains("i.redd.it"))
+                embedBuilder.setImage(url);
+
+            builder.setEmbed(embedBuilder);
+            builder.send(channel);
+
+            System.out.println(submission.getPermalink());
+
+        }).start();
 
 
     }

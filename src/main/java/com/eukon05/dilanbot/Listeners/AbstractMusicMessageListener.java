@@ -21,11 +21,6 @@ public abstract class AbstractMusicMessageListener extends AbstractMessageListen
     }
 
     @Override
-    public void onMessageCreate(MessageCreateEvent event) {
-        super.onMessageCreate(event);
-    }
-
-    @Override
     void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value) {
         User me = event.getApi().getYourself();
         ServerMusicManager manager = playerManager.getServerMusicManager(event.getServer().get().getId());

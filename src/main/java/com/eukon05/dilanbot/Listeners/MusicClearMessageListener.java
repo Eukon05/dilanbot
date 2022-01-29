@@ -18,39 +18,32 @@ public class MusicClearMessageListener extends AbstractMusicMessageListener {
     @Override
     void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
 
-        Thread thread = new Thread(){
+        new Thread(() -> {
 
-            @Override
-            public void run(){
+            ServerTextChannel channel = event.getServerTextChannel().get();
 
-                ServerTextChannel channel = event.getServerTextChannel().get();
-
-                if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
-                    channel.sendMessage("I'm not connected to a voice channel!");
-                    return;
-                }
-
-                if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
-                        !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
-                    channel.sendMessage("You have to be in the same channel as me!");
-                    return;
-                }
-
-                int queueSize = manager.scheduler.getQueue().size();
-
-                if(queueSize==0){
-                    channel.sendMessage("**The queue is empty!**");
-                    return;
-                }
-
-                manager.scheduler.clearQueue();
-                channel.sendMessage("**Cleared " + queueSize + " tracks from the queue!**");
-
+            if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
+                channel.sendMessage("I'm not connected to a voice channel!");
+                return;
             }
 
-        };
+            if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
+                    !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
+                channel.sendMessage("You have to be in the same channel as me!");
+                return;
+            }
 
-        thread.start();
+            int queueSize = manager.scheduler.getQueue().size();
+
+            if(queueSize==0){
+                channel.sendMessage("**The queue is empty!**");
+                return;
+            }
+
+            manager.scheduler.clearQueue();
+            channel.sendMessage("**Cleared " + queueSize + " tracks from the queue!**");
+
+        }).start();
 
     }
 

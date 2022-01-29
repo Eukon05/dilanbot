@@ -17,37 +17,30 @@ public class MusicSkipMessageListener extends AbstractMusicMessageListener {
     @Override
     void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
 
-        Thread thread = new Thread(){
+        new Thread(() -> {
 
-            @Override
-            public void run(){
+            ServerTextChannel channel = event.getServerTextChannel().get();
 
-                ServerTextChannel channel = event.getServerTextChannel().get();
-
-                if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
-                        !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
-                    channel.sendMessage("You have to be in the same channel as me!");
-                    return;
-                }
-
-                if(manager.player.getPlayingTrack()==null) {
-                    channel.sendMessage("**:x: Nothing is playing right now**");
-                    return;
-                }
-
-                if(manager.scheduler.loopTrack!=null){
-                    manager.scheduler.loopTrack=null;
-                    channel.sendMessage("**:warning: Loop disabled!**");
-                }
-
-                manager.scheduler.nextTrack();
-                channel.sendMessage("**:fast_forward: Skipped**");
-
+            if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
+                    !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
+                channel.sendMessage("You have to be in the same channel as me!");
+                return;
             }
 
-        };
+            if(manager.player.getPlayingTrack()==null) {
+                channel.sendMessage("**:x: Nothing is playing right now**");
+                return;
+            }
 
-        thread.start();
+            if(manager.scheduler.loopTrack!=null){
+                manager.scheduler.loopTrack=null;
+                channel.sendMessage("**:warning: Loop disabled!**");
+            }
+
+            manager.scheduler.nextTrack();
+            channel.sendMessage("**:fast_forward: Skipped**");
+
+        }).start();
 
     }
 

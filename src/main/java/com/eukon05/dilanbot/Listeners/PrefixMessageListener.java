@@ -16,29 +16,22 @@ public class PrefixMessageListener extends AbstractMessageListener {
     @Override
     void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value) {
 
-        Thread thread = new Thread(){
+        new Thread(() -> {
 
-            @Override
-            public void run(){
+            ServerTextChannel channel = event.getServerTextChannel().get();
 
-                ServerTextChannel channel = event.getServerTextChannel().get();
-
-                if(value.isEmpty()){
-                    channel.sendMessage("My current prefix is \"" +serverDTO.getPrefix()+"\", to change it, type: \n" +
-                            serverDTO.getPrefix()+" prefix [new prefix here]");
-                    return;
-                }
-
-                serverDTO.setPrefix(value);
-                serverService.updateServer(serverDTO);
-
-                channel.sendMessage("Done, my prefix will be \"" + value + "\" from now on!");
-
+            if(value.isEmpty()){
+                channel.sendMessage("My current prefix is \"" +serverDTO.getPrefix()+"\", to change it, type: \n" +
+                        serverDTO.getPrefix()+" prefix [new prefix here]");
+                return;
             }
 
-        };
+            serverDTO.setPrefix(value);
+            serverService.updateServer(serverDTO);
 
-        thread.start();
+            channel.sendMessage("Done, my prefix will be \"" + value + "\" from now on!");
+
+        }).start();
 
 
 

@@ -3,7 +3,6 @@ package com.eukon05.dilanbot.Listeners;
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.eukon05.dilanbot.Services.ServerService;
 import lombok.Setter;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,9 +89,25 @@ public abstract class AbstractMessageListener implements MessageCreateListener {
 
     }
 
-    //Thanks to StackOverflow user Joakim Danielson for coming up with a great idea of moving the listeners main code
-    //to another abstract method, instead of overriding onMessageCreate
-    //https://bit.ly/3p3zGrE
+    /*
+    Thanks to StackOverflow user Joakim Danielson for coming up with a great idea of moving the listeners main code
+    to another abstract method, instead of overriding onMessageCreate.
+    https://bit.ly/3p3zGrE
+
+
+    This method is problematic, since it requires A TON of arguments to function correctly.
+    That is caused by not having any variables associated with the listener class itself, but rather as temporary variables accessed only inside the methods.
+    onMessageCreate() method needs to pass all required objects to childOnMessageCreate().
+    This can be sorted out by introducing a new type of object, that could store all necessary variables inside it.
+
+    Answering the next question, all listener classes have their childOnMessageCreate() method create and start a new thread.
+    That is a temporary solution that allows the bot to execute multiple commands at the same time without focusing on one task and then moving on to another.
+    This is almost necessary, because if the bot was added to many, many servers, it could be overloaded fairly quickly if every listener had to
+    complete a heavy task before accepting new requests.
+
+    Also, every overridden childOnMessageCreate() method creates a new ServerTextChannel type object called "channel".
+    This is for convenience only and should be done in a super-method or removed at all
+     */
     abstract void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value);
 
 }

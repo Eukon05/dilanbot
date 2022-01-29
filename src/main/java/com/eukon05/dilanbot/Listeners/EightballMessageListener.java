@@ -25,31 +25,24 @@ public class EightballMessageListener extends AbstractMessageListener {
     @Override
     void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value) {
 
-        Thread thread = new Thread(){
+        new Thread(() -> {
 
-            @Override
-            public void run(){
+            ServerTextChannel channel = event.getServerTextChannel().get();
 
-                ServerTextChannel channel = event.getServerTextChannel().get();
+            try {
 
-                try {
+                HttpResponse<String> response = Unirest.get("https://8ball.delegator.com/magic/JSON/" + value).asString();
+                JsonObject responseJson = gson.fromJson(response.getBody(), JsonObject.class).get("magic").getAsJsonObject();
 
-                    HttpResponse<String> response = Unirest.get("https://8ball.delegator.com/magic/JSON/" + value).asString();
-                    JsonObject responseJson = gson.fromJson(response.getBody(), JsonObject.class).get("magic").getAsJsonObject();
-
-                    channel.sendMessage(responseJson.get("answer").getAsString());
-
-                }
-                catch (Exception ex){
-                    channel.sendMessage("Something went wrong! " + ex.getMessage());
-                    ex.printStackTrace();
-                }
+                channel.sendMessage(responseJson.get("answer").getAsString());
 
             }
+            catch (Exception ex){
+                channel.sendMessage("Something went wrong! " + ex.getMessage());
+                ex.printStackTrace();
+            }
 
-        };
-
-        thread.start();
+        }).start();
 
     }
 
