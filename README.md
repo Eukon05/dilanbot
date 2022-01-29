@@ -14,7 +14,9 @@ The bot's default prefix is "dilan", every command uses this pattern: <br>
 
 <ul>
 <li>
-    Play music from Youtube by either searching for the song or passing a URL, control the playback by using the "skip", "pause", "loop", "clear" or "stop" commands
+    Play music from Youtube by using the "play" command and either typing in the title of the song, or passing a URL. <br>
+    Control the playback by using the "skip", "pause", "loop", "clear" or "stop" commands. <br>
+    The "play" command without any arguments is used to resume the track after it has been paused.
 </li>
 <br>
 <li>
