@@ -1,4 +1,4 @@
-<h1> Dilan - An open source Discord music bot</h1>
+<img src="dilan-banner-trimmed.png" style="margin-left: auto; margin-right: auto" alt="banner">
 
 <h3>Backstory</h3>
 After Google shut Rythm and Groovy down, me and my friends were looking for a way to once again hear the famous song "Never Gonna Give You Up" on our Discord server. <br>
