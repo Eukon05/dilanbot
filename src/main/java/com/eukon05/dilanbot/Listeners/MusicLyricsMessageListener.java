@@ -13,30 +13,34 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Locale;
 
 @Component
 public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
 
     private final GLA gla;
-    private final JsonArray wordList;
+    private JsonArray wordList;
+    private final Gson gson;
+
+    @Value("${lyrics.wordlist.path}")
+    private String wordlistPath;
+    private final URL wordlistUrl = new URL(wordlistPath);
 
     @Autowired
-    public MusicLyricsMessageListener(GLA gla, Gson gson) throws IOException {
+    public MusicLyricsMessageListener(GLA gla, Gson gson) throws MalformedURLException {
         super(" lyrics");
         this.gla=gla;
-
-        ResourceLoader resourceLoader = new DefaultResourceLoader();
-        Resource resource = resourceLoader.getResource("classpath:lyrics-wordlist.json");
-        wordList = gson.fromJson(FileCopyUtils.copyToString(new InputStreamReader(resource.getInputStream())), JsonArray.class);
+        this.gson = gson;
     }
 
     @Override
@@ -45,6 +49,16 @@ public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
         new Thread(() -> {
 
             ServerTextChannel channel = event.getServerTextChannel().get();
+
+            try {
+                wordList = gson.fromJson(new InputStreamReader(wordlistUrl.openStream()), JsonArray.class);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                channel.sendMessage("An I/O error has occurred: " + e.getMessage());
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             SongSearch search;
             SongSearch.Hit hit=null;
