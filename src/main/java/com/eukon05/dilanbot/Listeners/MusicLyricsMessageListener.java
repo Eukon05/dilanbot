@@ -52,10 +52,11 @@ public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
                 wordList = gson.fromJson(new InputStreamReader(wordlistUrl.openStream()), JsonArray.class);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                channel.sendMessage("An I/O error has occurred: " + e.getMessage());
+                channel.sendMessage("lyrics-wordlist.json file NOT FOUND!");
 
             } catch (IOException e) {
                 e.printStackTrace();
+                channel.sendMessage("An I/O error has occurred: " + e.getMessage());
             }
 
             SongSearch search;
