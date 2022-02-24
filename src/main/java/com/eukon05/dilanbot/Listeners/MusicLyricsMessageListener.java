@@ -31,16 +31,14 @@ public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
     private final GLA gla;
     private JsonArray wordList;
     private final Gson gson;
-
-    @Value("${lyrics.wordlist.path}")
-    private String wordlistPath;
-    private final URL wordlistUrl = new URL(wordlistPath);
+    private final URL wordlistUrl;
 
     @Autowired
-    public MusicLyricsMessageListener(GLA gla, Gson gson) throws MalformedURLException {
+    public MusicLyricsMessageListener(GLA gla, Gson gson, @Value("${lyrics.wordlist.path}") String url) throws MalformedURLException {
         super(" lyrics");
         this.gla=gla;
         this.gson = gson;
+        this.wordlistUrl = new URL(url);
     }
 
     @Override

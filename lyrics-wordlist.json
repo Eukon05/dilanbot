@@ -1,14 +1,19 @@
 [
+
   {
-    "value": "(official music video)"
+    "value": "["
   },
 
   {
-    "value": "vevo"
+    "value": "]"
   },
 
   {
-    "value": "(official audio)"
+    "value": "("
+  },
+
+  {
+    "value": ")"
   },
 
   {
@@ -16,11 +21,23 @@
   },
 
   {
-    "value": "(original song)"
+    "value": "vevo"
+  },
+
+  {
+    "value": "official audio"
+  },
+
+
+  {
+    "value": "original song"
   },
   
   {
-    "value": "[official video]"
-  }
+    "value": "official video"
+  },
 
+  {
+    "value": "official music video"
+  }
 ]
