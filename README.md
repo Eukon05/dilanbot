@@ -51,7 +51,7 @@ The bot's default prefix is "dilan", every command uses this pattern: <br>
 <ul>
 
 <li>
-Why does the bot require admin privileges?! This is a scam!<br>
+Why does the bot require admin privileges?! This is a scam!<br><br>
 No, this is not a scam. You need to grant Dilan admin access, because I was too lazy to implement permission checks.<br>
 If you are still unsure about the bot's safety, feel free to look through the code, I assure you that it's 100% safe<br>
 
@@ -59,14 +59,14 @@ If you are still unsure about the bot's safety, feel free to look through the co
 <br>
 
 <li>
-Does the bot store my information?<br>
+Does the bot store my information?<br><br>
 No, we don't store any user-related data.<br>
 The server's ID, however, goes into our database, to enable our users to change the prefix of the bot. That's all.<br>
 </li>
 <br>
 
 <li>
-I kicked the bot from my server and added it back, but it won't react to any commands!<br>
+I kicked the bot from my server and added it back, but it won't react to any commands!<br><br>
 There's a high chance that you've changed the bot's prefix! You can change it back, using the "dilan prefix" command.<br>
 If the issue still persists, feel free to open an issue on this Github project
 </li>
