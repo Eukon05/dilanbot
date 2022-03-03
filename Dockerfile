@@ -1,13 +1,12 @@
 # syntax=docker/dockerfile:1
 
-FROM openjdk:17-alpine3.14
+FROM maven:3.8.4-openjdk-17
 
 WORKDIR /app
 
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
-RUN ./mvnw dependency:go-offline
+COPY pom.xml ./
+RUN mvn dependency:go-offline
 
 COPY src ./src
 
-CMD ["./mvnw", "spring-boot:run"]
+CMD ["mvn", "spring-boot:run"]
