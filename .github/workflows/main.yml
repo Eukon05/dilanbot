@@ -4,20 +4,12 @@ on:
   push:
     branches: [ master ]
     paths: 
-      - '**/src/**'
-      - '**/pom.xml'
-      - '**/Dockerfile'
-      - '**/Procfile'
-      - '**/system.properties'
-  pull_request:
-    branches: [ master ]
-    paths: 
-      - '**/src/**'
-      - '**/pom.xml'
-      - '**/Dockerfile'
-      - '**/Procfile'
-      - '**/system.properties'
-
+      - 'src/**'
+      - 'pom.xml'
+      - 'Dockerfile'
+      - 'Procfile'
+      - 'system.properties'
+      
 jobs:
 
   build:
