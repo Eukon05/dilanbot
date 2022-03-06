@@ -67,6 +67,8 @@ public class RedditMessageListener extends AbstractMessageListener {
 
             catch (Exception ex){
                 channel.sendMessage("An unknown error has occurred: " + ex.getMessage());
+
+                ex.printStackTrace();
                 return;
             }
 
