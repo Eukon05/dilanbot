@@ -134,7 +134,7 @@ If you've chosen to follow the tutorial on hosting the database on heroku, here'
 
 <ol>
 <li>Make a private fork of this GitHub repository</li>
-<li>On your heroku app's dashboard, go to the "Deploy" tab, and connect your GitHub account to Heroku</li>
+<li>On your heroku app's dashboard, go to the "Deploy" tab, and connect your GitHub account to Heroku, then select the forked repository</li>
 <li>Now, go to the "Settings" tab, reveal the config vars, and fill them up as follows:
 
 ```
@@ -149,7 +149,7 @@ key: DISCORD.TOKEN value: yourdiscordbottoken
 <li>After doing all of this correctly, head back to the "Deploy" tab, scroll down to the bottom and deploy the master branch</li>
 </ol>
 
-Congratulation! You should now have a fully configured and working instance of Dilan, running on Heroku! <br>
+Congratulations! You should now have a fully configured and working instance of Dilan, running on Heroku! <br>
 You can invite him to your Discord server by using the invite link you've generated in the previous section.
 
 <h3>Hosting the bot on a private server with Docker</h3>
@@ -170,8 +170,8 @@ docker run \
             -e DISCORD.TOKEN=yourdiscordbottoken \
             eukon/dilan
 ```
-Please not that the command above is intended for Linux hosts. <br>
-If you want to use Windows, replace the `` \  `` with `` ` `` <br><br>
+Please note that the command above is intended for Linux hosts. <br>
+If you want to use Windows, replace the `` \ `` with `` ` `` <br><br>
 I know this command is very, very long, but I don't know how to use Docker Compose at the time of writing this tutorial. <br>
 When I'll have a good understanding of it, I'll publish a Compose image and a template '.env' file, that'll allow for easier deployment.
  
