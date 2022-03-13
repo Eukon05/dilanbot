@@ -138,8 +138,8 @@ If you've chosen to follow the tutorial on hosting the database on heroku, here'
 <li>Now, go to the "Settings" tab, reveal the config vars, and fill them up as follows:
 
 ```
-key: PREFIX value: dilan 
 key: REDDIT.CLIENTID value: yourredditclientid
+key: REDDIT.CLIENTSECRET value: yourredditclientsecret
 key: REDDIT.USERNAME value: yourredditusername
 key: REDDIT.PASSWORD value: yourredditpassword
 key: DISCORD.TOKEN value: yourdiscordbottoken
@@ -163,8 +163,8 @@ docker run \
             -e SPRING.DATASOURCE.URL=jdbc:postgresql://yourdatabaseurl \
             -e SPRING.DATASOURCE.USERNAME=yourdatabaseusername \
             -e SPRING.DATASOURCE.PASSWORD=yourdatabasepassword \
-            -e PREFIX=dilan \
             -e REDDIT.CLIENTID=yourredditclientid \
+            -e REDDIT.CLIENTSECRET=yourredditclientsecret \
             -e REDDIT.USERNAME=yourredditusername \
             -e REDDIT.PASSWORD=yourredditpassword \
             -e DISCORD.TOKEN=yourdiscordbottoken \
