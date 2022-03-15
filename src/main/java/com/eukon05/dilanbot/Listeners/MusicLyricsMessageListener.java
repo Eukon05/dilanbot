@@ -14,13 +14,11 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
-import org.springframework.util.FileCopyUtils;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
@@ -50,11 +48,13 @@ public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
 
             try {
                 wordList = gson.fromJson(new InputStreamReader(wordlistUrl.openStream()), JsonArray.class);
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e) {
                 e.printStackTrace();
                 channel.sendMessage("lyrics-wordlist.json file NOT FOUND!");
 
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
                 channel.sendMessage("An I/O error has occurred: " + e.getMessage());
             }

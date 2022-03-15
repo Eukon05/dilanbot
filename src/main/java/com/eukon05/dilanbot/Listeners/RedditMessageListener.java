@@ -37,14 +37,12 @@ public class RedditMessageListener extends AbstractMessageListener {
                 submission = redditClient.subreddit(value).randomSubmission().getSubject();
             }
             catch(NetworkException ex){
-                int status = ex.getRes().getCode();
 
-                if(status==404)
+                if(ex.getRes().getCode()==404)
                     channel.sendMessage("This subreddit doesn't exist!");
 
                 else
                     channel.sendMessage("An unknown HTTP error has occurred: " + ex.getMessage());
-
 
                 ex.printStackTrace();
                 return;
@@ -52,9 +50,7 @@ public class RedditMessageListener extends AbstractMessageListener {
 
             catch (ApiException ex){
 
-                int status =  Integer.parseInt(ex.getCode());
-
-                if(status==403)
+                if(Integer.parseInt(ex.getCode())==403)
                     channel.sendMessage("This subreddit is private!");
 
                 else
@@ -71,17 +67,7 @@ public class RedditMessageListener extends AbstractMessageListener {
                 return;
             }
 
-
-            boolean validPost = false;
-            while(!validPost){
-
-                if(!(submission.getSelfText()!=null && submission.getUrl().contains("v.redd.it")))
-                    validPost=true;
-
-            }
-
             String url = submission.getUrl();
-
 
             if(submission.isNsfw() && !channel.isNsfw()){
                 channel.sendMessage("This isn't a time and place for that, use an NSFW-enabled channel");
@@ -96,7 +82,6 @@ public class RedditMessageListener extends AbstractMessageListener {
                     .setDescription(submission.getSelfText())
                     .setUrl("https://reddit.com" + submission.getPermalink())
                     .setFooter("A random post from r/" + value);
-
 
             if(url!=null && url.contains("i.redd.it"))
                 embedBuilder.setImage(url);
