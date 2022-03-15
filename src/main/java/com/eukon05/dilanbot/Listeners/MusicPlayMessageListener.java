@@ -76,7 +76,8 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
 
             }
             else
-            if(!(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())){
+            if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
+                    !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
                 channel.sendMessage("You have to be in the same channel as me!");
                 return;
             }
