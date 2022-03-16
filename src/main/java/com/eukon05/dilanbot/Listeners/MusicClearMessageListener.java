@@ -22,16 +22,8 @@ public class MusicClearMessageListener extends AbstractMusicMessageListener {
 
             ServerTextChannel channel = event.getServerTextChannel().get();
 
-            if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
-                channel.sendMessage("I'm not connected to a voice channel!");
+            if(!isBotOnVCCheck(me, event) || !isUserOnVCCheck(me, event))
                 return;
-            }
-
-            if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
-                    !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
-                channel.sendMessage("You have to be in the same channel as me!");
-                return;
-            }
 
             int queueSize = manager.scheduler.getQueue().size();
 

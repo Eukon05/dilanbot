@@ -64,22 +64,8 @@ public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
 
             if(value.isEmpty()){
 
-                if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
-                    channel.sendMessage("I'm not connected to a voice channel!");
+                if(comboCheck(me, event, manager))
                     return;
-                }
-
-                if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
-                        !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
-                    channel.sendMessage("You have to be in the same channel as me!");
-                    return;
-                }
-
-                if(manager.player.getPlayingTrack()==null) {
-                    channel.sendMessage("**:x: Nothing is playing right now**");
-                    return;
-                }
-
 
                 try{
 

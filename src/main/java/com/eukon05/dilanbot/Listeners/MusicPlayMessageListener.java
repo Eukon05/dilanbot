@@ -26,21 +26,8 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
 
             if(valueCopy.isEmpty()) {
 
-                if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
-                    channel.sendMessage("I'm not connected to a voice channel!");
+                if(!comboCheck(me, event, manager))
                     return;
-                }
-
-                if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
-                        !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
-                    channel.sendMessage("You have to be in the same channel as me!");
-                    return;
-                }
-
-                if(manager.player.getPlayingTrack()==null) {
-                    channel.sendMessage("**:x: Nothing is playing right now**");
-                    return;
-                }
 
                 if (manager.player.isPaused()) {
                     manager.player.setPaused(false);
@@ -59,7 +46,7 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
             if(me.getConnectedVoiceChannel(channel.getServer()).isEmpty()){
 
                 if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty()){
-                    channel.sendMessage("You have to be connected to a voice channel!");
+                    channel.sendMessage("**:x: You have to be connected to a voice channel!");
                     return;
                 }
 
@@ -76,11 +63,8 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
 
             }
             else
-            if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
-                    !(me.getConnectedVoiceChannel(channel.getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
-                channel.sendMessage("You have to be in the same channel as me!");
-                return;
-            }
+                if(!isUserOnVCCheck(me, event))
+                    return;
 
             playerManager.loadAndPlay(channel, valueCopy);
 

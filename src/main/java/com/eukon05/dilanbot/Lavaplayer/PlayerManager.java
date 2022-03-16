@@ -113,7 +113,7 @@ public class PlayerManager {
 
             @Override
             public void noMatches() {
-                textChannel.sendMessage("No matching tracks found O-O");
+                textChannel.sendMessage("No matching tracks found :c");
             }
 
             @Override
