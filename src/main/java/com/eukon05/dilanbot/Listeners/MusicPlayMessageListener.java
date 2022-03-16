@@ -17,8 +17,6 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
     @Override
     void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
 
-        //This code is AWFUL. I need to extract the VC checks into a method in the AbstractMusicMessageListener class.
-
         new Thread(() -> {
 
             ServerTextChannel channel = event.getServerTextChannel().get();
