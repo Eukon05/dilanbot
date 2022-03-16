@@ -64,7 +64,7 @@ public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
 
             if(value.isEmpty()){
 
-                if(comboCheck(me, event, manager))
+                if(!comboCheck(me, event, manager))
                     return;
 
                 try{
