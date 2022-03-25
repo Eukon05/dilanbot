@@ -38,7 +38,7 @@ public class ServerJoinListenerImpl implements ServerJoinListener {
                 EmbedBuilder emb = new EmbedBuilder();
 
                 emb.setTitle("Thanks for adding me!");
-                emb.setDescription("For a list of available commands, please visit our [GitHub page](https://https://github.com/Eukon05/dilanbot#features-and-usage)");
+                emb.setDescription("For a list of available commands, please visit our [GitHub page](https://github.com/Eukon05/dilanbot#features-and-usage)");
                 emb.setThumbnail(event.getApi().getYourself().getAvatar());
 
                 //I have no idea why the ")" symbol adds itself to the end of these values
