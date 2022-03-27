@@ -76,9 +76,10 @@ public class PlayerManager {
                 manager.scheduler.queue(track);
 
                 new MessageBuilder().setEmbed(new EmbedBuilder()
-                        .setDescription("*:notes: "+action+" ["+track.getInfo().title+"]("+track.getInfo().uri+")*"))
+                                .setTitle(action)
+                                .setDescription("["+track.getInfo().title+"]("+track.getInfo().uri+")")
+                                .setThumbnail(track.getInfo().artworkUrl))
                         .send(textChannel);
-
 
             }
 
@@ -104,7 +105,10 @@ public class PlayerManager {
                     manager.scheduler.queue(playlist.getTracks().get(0));
 
                     new MessageBuilder()
-                            .setEmbed(new EmbedBuilder().setDescription("*:notes: "+action+" ["+playlist.getTracks().get(0).getInfo().title+"]("+playlist.getTracks().get(0).getInfo().uri+")*"))
+                            .setEmbed(new EmbedBuilder()
+                                    .setTitle(action)
+                                    .setDescription("["+playlist.getTracks().get(0).getInfo().title+"]("+playlist.getTracks().get(0).getInfo().uri+")")
+                                    .setThumbnail(playlist.getTracks().get(0).getInfo().artworkUrl))
                             .send(textChannel);
 
                 }
