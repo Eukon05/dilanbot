@@ -114,14 +114,7 @@ and create a new application.
 <br>
 
 <li>
-Visit <a href="https://mattbdean.gitbooks.io/jraw/content/quickstart.html#create-a-reddit-oauth2-app"> Jraw's Documentation</a> and create a new Reddit App by following the guide<br>
-(You only need to create the app on Reddit's website, so you'll generate a clientID and a clientSecret, don't bother reading the rest of the page)
-</li>
-
-<br>
-
-<li>
-This last bit is the hardest one. You'll need to create a PostgreSQL database.<br>
+Create a PostgreSQL database.<br>
 The easiest way to do that, is by following <a href="https://dev.to/prisma/how-to-setup-a-free-postgresql-database-on-heroku-1dc1">this tutorial</a>. <br>
 If you are a technical user, you can of course use a self-hosted Postgres DB.
 </li>
@@ -135,13 +128,9 @@ If you've chosen to follow the tutorial on hosting the database on heroku, here'
 <ol>
 <li>Make a private fork of this GitHub repository</li>
 <li>On your heroku app's dashboard, go to the "Deploy" tab, and connect your GitHub account to Heroku, then select the forked repository</li>
-<li>Now, go to the "Settings" tab, reveal the config vars, and fill them up as follows:
+<li>Now, go to the "Settings" tab, reveal the config vars, and add the one below:
 
 ```
-key: REDDIT.CLIENTID value: yourredditclientid
-key: REDDIT.CLIENTSECRET value: yourredditclientsecret
-key: REDDIT.USERNAME value: yourredditusername
-key: REDDIT.PASSWORD value: yourredditpassword
 key: DISCORD.TOKEN value: yourdiscordbottoken
 ```
 </li>
@@ -163,10 +152,6 @@ docker run \
             -e SPRING.DATASOURCE.URL=jdbc:postgresql://yourdatabaseurl \
             -e SPRING.DATASOURCE.USERNAME=yourdatabaseusername \
             -e SPRING.DATASOURCE.PASSWORD=yourdatabasepassword \
-            -e REDDIT.CLIENTID=yourredditclientid \
-            -e REDDIT.CLIENTSECRET=yourredditclientsecret \
-            -e REDDIT.USERNAME=yourredditusername \
-            -e REDDIT.PASSWORD=yourredditpassword \
             -e DISCORD.TOKEN=yourdiscordbottoken \
             eukon/dilan
 ```
@@ -204,10 +189,6 @@ The bot was made using the following libraries:
 
 <li>
 <a href="http://kong.github.io/unirest-java/">Unirest For Java</a> by Kong
-</li>
-
-<li>
-<a href="https://github.com/mattbdean/JRAW">JRAW</a> by mattbdean
 </li>
 
 <li>

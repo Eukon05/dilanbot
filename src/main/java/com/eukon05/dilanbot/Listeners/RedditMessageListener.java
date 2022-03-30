@@ -1,10 +1,10 @@
 package com.eukon05.dilanbot.Listeners;
 
 import com.eukon05.dilanbot.DTOs.ServerDTO;
-import net.dean.jraw.ApiException;
-import net.dean.jraw.RedditClient;
-import net.dean.jraw.http.NetworkException;
-import net.dean.jraw.models.Submission;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -15,12 +15,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class RedditMessageListener extends AbstractMessageListener {
 
-    private final RedditClient redditClient;
+    private final Gson gson;
 
     @Autowired
-    public RedditMessageListener(RedditClient redditClient){
+    public RedditMessageListener(Gson gson){
         super(" reddit");
-        this.redditClient = redditClient;
+        this.gson = gson;
 
     }
 
@@ -31,69 +31,83 @@ public class RedditMessageListener extends AbstractMessageListener {
 
             ServerTextChannel channel = event.getServerTextChannel().get();
 
-            Submission submission;
-
             try {
-                submission = redditClient.subreddit(value).randomSubmission().getSubject();
+
+                //For some reason this throws an exception when Reddit redirects the HTTP client to a URL containing non-ascii characters
+                HttpResponse<String> response = Unirest.get("https://reddit.com/r/" + value + "/random.json").asString();
+
+                switch (response.getStatus()) {
+
+                    case 200:
+                        break;
+
+                    case 404: {
+                        channel.sendMessage("This subreddit doesn't exist");
+                        return;
+                    }
+
+                    case 403: {
+                        channel.sendMessage("This subreddit is private");
+                        return;
+                    }
+
+                    default: {
+                        channel.sendMessage("An unexpected Reddit API error has occurred: " + response.getBody());
+                    }
+
+                }
+
+                RedditSubmission submission = gson
+                        .fromJson(gson.fromJson(response.getBody(), JsonArray.class)
+                                .get(0).getAsJsonObject().get("data")
+                                .getAsJsonObject().get("children").getAsJsonArray().get(0).getAsJsonObject().get("data")
+                                .getAsJsonObject(), RedditSubmission.class);
+
+                if (submission.over_18 && !channel.isNsfw()) {
+                    channel.sendMessage("This isn't a time and place for that, use an NSFW-enabled channel");
+                    return;
+                }
+
+                MessageBuilder builder = new MessageBuilder();
+
+                EmbedBuilder embedBuilder = new EmbedBuilder()
+                        .setAuthor(submission.author)
+                        .setTitle(submission.title)
+                        .setDescription(submission.selftext)
+                        .setUrl("https://reddit.com" + submission.permalink)
+                        .setFooter("A random post from " + submission.subreddit_name_prefixed);
+
+                if (submission.url != null && !submission.is_video)
+                    embedBuilder.setImage(submission.url);
+
+                builder.setEmbed(embedBuilder);
+                builder.send(channel);
+
+                if (submission.is_video)
+                    new MessageBuilder()
+                            .setEmbed(new EmbedBuilder()
+                                    .setDescription("The above Reddit post contains a video, visit it in your browser to see it!"))
+                            .send(channel);
             }
-            catch(NetworkException ex){
-
-                if(ex.getRes().getCode()==404)
-                    channel.sendMessage("This subreddit doesn't exist!");
-
-                else
-                    channel.sendMessage("An unknown HTTP error has occurred: " + ex.getMessage());
-
+            catch(Exception ex){
+                channel.sendMessage("An unexpected backend error has occurred: " + ex.getMessage());
                 ex.printStackTrace();
-                return;
             }
-
-            catch (ApiException ex){
-
-                if(Integer.parseInt(ex.getCode())==403)
-                    channel.sendMessage("This subreddit is private!");
-
-                else
-                    channel.sendMessage("An unknown API error has occurred: " + ex.getMessage());
-
-                ex.printStackTrace();
-                return;
-            }
-
-            catch (Exception ex){
-                channel.sendMessage("An unknown error has occurred: " + ex.getMessage());
-
-                ex.printStackTrace();
-                return;
-            }
-
-            String url = submission.getUrl();
-
-            if(submission.isNsfw() && !channel.isNsfw()){
-                channel.sendMessage("This isn't a time and place for that, use an NSFW-enabled channel");
-                return;
-            }
-
-            MessageBuilder builder = new MessageBuilder();
-
-            EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setAuthor(submission.getAuthor())
-                    .setTitle(submission.getTitle())
-                    .setDescription(submission.getSelfText())
-                    .setUrl("https://reddit.com" + submission.getPermalink())
-                    .setFooter("A random post from r/" + value);
-
-            if(url!=null && url.contains("i.redd.it"))
-                embedBuilder.setImage(url);
-
-            builder.setEmbed(embedBuilder);
-            builder.send(channel);
-
-            System.out.println(submission.getPermalink());
 
         }).start();
 
 
     }
 
+}
+
+class RedditSubmission{
+    boolean over_18;
+    boolean is_video;
+    String permalink;
+    String url;
+    String selftext;
+    String author;
+    String title;
+    String subreddit_name_prefixed;
 }
