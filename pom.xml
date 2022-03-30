@@ -10,13 +10,12 @@
     </parent>
     <groupId>com.eukon05</groupId>
     <artifactId>dilanbot</artifactId>
-    <version>1.2.1</version>
+    <version>1.3.0</version>
     <name>dilanbot</name>
     <description>dilanbot</description>
     <properties>
 
         <java.version>11</java.version>
-        <jraw.version>1.1.0</jraw.version>
         <lavaplayer.version>1.3.97</lavaplayer.version>
         <javacord.version>3.4.0</javacord.version>
         <unirest.version>3.13.6</unirest.version>
@@ -75,12 +74,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.dean.jraw</groupId>
-            <artifactId>JRAW</artifactId>
-            <version>${jraw.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.javacord</groupId>
             <artifactId>javacord</artifactId>
             <version>${javacord.version}</version>
@@ -98,7 +91,6 @@
             <artifactId>unirest-java</artifactId>
             <version>${unirest.version}</version>
         </dependency>
-
 
         <dependency>
             <groupId>com.google.code.gson</groupId>
