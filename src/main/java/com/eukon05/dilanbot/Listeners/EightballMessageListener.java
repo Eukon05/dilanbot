@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,7 +36,11 @@ public class EightballMessageListener extends AbstractMessageListener {
                 HttpResponse<String> response = Unirest.get("https://8ball.delegator.com/magic/JSON/" + value).asString();
                 JsonObject responseJson = gson.fromJson(response.getBody(), JsonObject.class).get("magic").getAsJsonObject();
 
-                channel.sendMessage(responseJson.get("answer").getAsString());
+                new MessageBuilder().setEmbed(new EmbedBuilder()
+                        .setTitle("The Magic 8-Ball says:")
+                        .setDescription(responseJson.get("answer").getAsString())
+                        .setFooter("Powered by Delegator")
+                ).send(channel);
 
             }
             catch (Exception ex){
