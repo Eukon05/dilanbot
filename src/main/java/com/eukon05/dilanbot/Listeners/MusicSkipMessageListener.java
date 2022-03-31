@@ -37,6 +37,9 @@ public class MusicSkipMessageListener extends AbstractMusicMessageListener {
 
             AudioTrack track = manager.player.getPlayingTrack();
 
+            if(track==null)
+                return;
+
             new MessageBuilder().setEmbed(new EmbedBuilder()
                             .setTitle("Now Playing")
                             .setDescription("["+track.getInfo().title+"]("+track.getInfo().uri+")")
