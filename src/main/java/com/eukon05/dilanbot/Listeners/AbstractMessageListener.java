@@ -10,6 +10,11 @@ import org.springframework.beans.factory.annotation.Value;
 
 public abstract class AbstractMessageListener implements MessageCreateListener {
 
+    /*
+    This way of handling message create events is very unoptimized, since every listener needs to go through all of the checks below.
+    This can be resolved by introducing a message handler instead of multiple listeners
+     */
+
     @Value("${prefix}")
     private String defaultPrefix;
 
@@ -31,7 +36,7 @@ public abstract class AbstractMessageListener implements MessageCreateListener {
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
 
-        if(event.getMessageAuthor().isYourself())
+        if(event.getMessageAuthor().isYourself() || event.getMessage().isPrivateMessage() || event.getMessageAuthor().isBotUser())
             return;
 
         ServerDTO serverDTO = serverService.getServerById(event.getServer().get().getId());
