@@ -44,7 +44,7 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
             if(me.getConnectedVoiceChannel(channel.getServer()).isEmpty()){
 
                 if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty()){
-                    channel.sendMessage("**:x: You have to be connected to a voice channel!");
+                    channel.sendMessage("**:x: You have to be connected to a voice channel!**");
                     return;
                 }
 
