@@ -8,7 +8,7 @@ We build it on top of Spring Framework and Javacord, popular and stable librarie
 The audio is being sourced using an updated fork of Lavaplayer, so YouTube compatibility is almost guaranteed at all times.
 
 <h2 style="text-align: center">
-<a href="https://discord.com/api/oauth2/authorize?client_id=913511878523752519&permissions=8&scope=bot">Add the bot to your server by clicking this link!</a>
+<a href="https://discord.com/api/oauth2/authorize?client_id=913511878523752519&permissions=274914725120&scope=bot">Add the bot to your server by clicking this link!</a>
 </h2>
 
 <h2>Features and usage</h2>
@@ -49,20 +49,6 @@ The bot's default prefix is "dilan", every command uses this pattern: <br>
 
 <h2>FAQ</h2>
 <ul>
-
-<li>
-Why does the bot require admin privileges?! This is a scam!
-<ul>
-
-<li>
-No, this is not a scam. You need to grant Dilan admin access, because I was too lazy to implement permission checks.<br>
-If you are still unsure about the bot's safety, feel free to look through the code, I assure you that it's 100% safe
-</li>
-
-</ul>
-
-</li>
-<br>
 
 <li>
 Does the bot store my information?<br>
