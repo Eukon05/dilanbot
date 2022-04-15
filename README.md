@@ -102,7 +102,7 @@ and create a new application.
 <li>
 Create a PostgreSQL database.<br>
 The easiest way to do that, is by following <a href="https://dev.to/prisma/how-to-setup-a-free-postgresql-database-on-heroku-1dc1">this tutorial</a>. <br>
-If you are a technical user, you can of course use a self-hosted Postgres DB.
+If you are a technical user, you can of course use a self-hosted Postgres DB, or follow along and use a Docker Compose image.
 </li>
 </ol>
 
@@ -124,13 +124,32 @@ key: DISCORD.TOKEN value: yourdiscordbottoken
 <li>After doing all of this correctly, head back to the "Deploy" tab, scroll down to the bottom and deploy the master branch</li>
 </ol>
 
-Congratulations! You should now have a fully configured and working instance of Dilan, running on Heroku! <br>
+Congratulations! You should now have a fully configured and working instance of Dilan running on Heroku! <br>
 You can invite him to your Discord server by using the invite link you've generated in the previous section.
 
 <h3>Hosting the bot on a private server with Docker</h3>
 
 If you're a technical user, good news! <br>
-You can also host the bot on your own server by using Docker!
+You can also host the bot on your own server by using Docker!<br>
+There are two methods of achieving that:
+
+<ul>
+    <li>Using a Docker Compose image</li>
+    <li>Using a regular Docker image and providing a database yourself</li>
+</ul>
+
+<h4>Docker Compose method</h4>
+
+<ol>
+    <li>Download the <b>docker-compose.yml</b> file from this repo and save it in a new directory</li>
+    <li>Modify the file to contain your Discord bot token.<br></li>
+I also <b>STRONGLY</b> advise changing the default database credentials!
+    <li>Run the following command in the directory containing the file:<br> <b>docker-compose up</b></li>
+</ol>
+That's it, you should have a fully configured and working instance of Dilan running on your machine!
+
+<h4>Regular Docker image method</h4>
+
 Here's a command that you'll have to run in order to start the bot up on your machine:
 
 ```shell
@@ -142,10 +161,8 @@ docker run \
             eukon/dilan
 ```
 Please note that the command above is intended for Linux hosts. <br>
-If you want to use Windows, replace the `` \ `` with `` ` `` <br><br>
-I know this command is very, very long, but I don't know how to use Docker Compose at the time of writing this tutorial. <br>
-When I'll have a good understanding of it, I'll publish a Compose image and a template '.env' file, that'll allow for easier deployment.
- 
+If you want to use Windows, replace the `` \ `` with `` ` `` 
+
 <h2>Contributing</h2>
 If you have an idea for a new feature or a bugfix, feel free to open an issue or a pull request!
 
@@ -183,6 +200,11 @@ The bot was made using the following libraries:
 
 <li>
 <a href="https://www.postgresql.org/">PostgreSQL</a>
+</li>
+
+<li>
+<a href="https://github.com/mattbdean/JRAW">JRAW</a> by mattbdean<br>
+(no longer used in the project)
 </li>
 
 </ul>
