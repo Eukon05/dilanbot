@@ -1,4 +1,4 @@
-package com.eukon05.dilanbot.Listeners;
+package com.eukon05.dilanbot.Commands;
 
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.eukon05.dilanbot.Lavaplayer.ServerMusicManager;
@@ -8,18 +8,21 @@ import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MusicNowPlayingListener extends AbstractMusicMessageListener{
+public class MusicNowPlayingCommand extends MusicCommand {
 
-    public MusicNowPlayingListener() {
-        super(" np");
+    @Autowired
+    public MusicNowPlayingCommand(CommandMap commandMap) {
+        super(commandMap);
+        addToCommands("np");
     }
 
-    @Override
-    void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
 
+    @Override
+    public void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments, User me, ServerMusicManager manager) {
         new Thread(() -> {
 
             ServerTextChannel channel = event.getServerTextChannel().get();
@@ -36,8 +39,5 @@ public class MusicNowPlayingListener extends AbstractMusicMessageListener{
                     .send(channel);
 
         }).start();
-
     }
-
-
 }

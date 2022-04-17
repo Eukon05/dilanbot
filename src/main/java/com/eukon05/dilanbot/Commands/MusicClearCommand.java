@@ -1,22 +1,24 @@
-package com.eukon05.dilanbot.Listeners;
+package com.eukon05.dilanbot.Commands;
 
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.eukon05.dilanbot.Lavaplayer.ServerMusicManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MusicClearMessageListener extends AbstractMusicMessageListener {
+public class MusicClearCommand extends MusicCommand {
 
-    public MusicClearMessageListener(){
-        super(" clear");
-
+    @Autowired
+    public MusicClearCommand(CommandMap commandMap){
+        super(commandMap);
+        addToCommands("clear");
     }
 
     @Override
-    void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
+    public void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments, User me, ServerMusicManager manager) {
 
         new Thread(() -> {
 
@@ -37,6 +39,6 @@ public class MusicClearMessageListener extends AbstractMusicMessageListener {
 
         }).start();
 
-    }
 
+    }
 }

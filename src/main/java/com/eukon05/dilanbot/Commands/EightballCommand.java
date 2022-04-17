@@ -1,4 +1,4 @@
-package com.eukon05.dilanbot.Listeners;
+package com.eukon05.dilanbot.Commands;
 
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.google.gson.Gson;
@@ -14,20 +14,23 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class EightballMessageListener extends AbstractMessageListener {
+public class EightballCommand extends Command {
 
     private final Gson gson;
 
     @Autowired
-    public EightballMessageListener(Gson gson){
-        super(" 8ball");
+    public EightballCommand(CommandMap commandMap, Gson gson){
+        super(commandMap);
         this.gson = gson;
+        addToCommands("8ball");
     }
 
     @Override
-    void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value) {
+    public void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments) {
 
         new Thread(() -> {
+
+            String value = fuseArguments(arguments);
 
             ServerTextChannel channel = event.getServerTextChannel().get();
 
@@ -51,5 +54,4 @@ public class EightballMessageListener extends AbstractMessageListener {
         }).start();
 
     }
-
 }

@@ -1,6 +1,8 @@
 package com.eukon05.dilanbot.Configurations;
 
-import com.eukon05.dilanbot.Listeners.*;
+import com.eukon05.dilanbot.Listeners.MessageListener;
+import com.eukon05.dilanbot.Listeners.ServerJoinListenerImpl;
+import com.eukon05.dilanbot.Listeners.VoiceChannelLeaveListener;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,70 +16,18 @@ public class DiscordConfiguration {
 
     @Value("${discord.token}")
     private String discordToken;
-
-    @Autowired
-    EightballMessageListener eightballMessageListener;
-
-    @Autowired
-    ServerJoinListenerImpl serverJoinListener;
-
-    @Autowired
-    PrefixMessageListener prefixMessageListener;
-
-    @Autowired
-    RedditMessageListener redditMessageListener;
-
-    @Autowired
-    MusicPlayMessageListener musicPlayMessageListener;
-
-    @Autowired
-    MusicStopMessageListener musicStopMessageListener;
-
-    @Autowired
-    MusicSkipMessageListener musicSkipMessageListener;
-
-    @Autowired
-    MusicPauseMessageListener musicPauseMessageListener;
-
-    @Autowired
-    VoiceChannelLeaveListener voiceChannelLeaveListener;
-
-    @Autowired
-    DisconnectMessageListener disconnectMessageListener;
-
-    @Autowired MusicClearMessageListener musicClearMessageListener;
-
-    @Autowired
-    MusicLoopMessageListener musicLoopMessageListener;
-
-    @Autowired
-    MusicLyricsMessageListener musicLyricsMessageListener;
-
-    @Autowired
-    MusicNowPlayingListener musicNowPlayingListener;
-
     @Bean
-    DiscordApi discordApi(){
+    @Autowired
+    DiscordApi discordApi(MessageListener messageListener, ServerJoinListenerImpl serverJoinListener, VoiceChannelLeaveListener vcLeaveListener){
 
         DiscordApi api = new DiscordApiBuilder()
                 .setToken(discordToken)
                 .setAllIntents()
                 .login().join();
 
+        api.addMessageCreateListener(messageListener);
         api.addServerJoinListener(serverJoinListener);
-        api.addMessageCreateListener(eightballMessageListener);
-        api.addMessageCreateListener(prefixMessageListener);
-        api.addMessageCreateListener(redditMessageListener);
-        api.addMessageCreateListener(musicPlayMessageListener);
-        api.addMessageCreateListener(musicStopMessageListener);
-        api.addMessageCreateListener(musicSkipMessageListener);
-        api.addMessageCreateListener(musicPauseMessageListener);
-        api.addServerVoiceChannelMemberLeaveListener(voiceChannelLeaveListener);
-        api.addMessageCreateListener(disconnectMessageListener);
-        api.addMessageCreateListener(musicClearMessageListener);
-        api.addMessageCreateListener(musicLoopMessageListener);
-        api.addMessageCreateListener(musicLyricsMessageListener);
-        api.addMessageCreateListener(musicNowPlayingListener);
+        api.addServerVoiceChannelMemberLeaveListener(vcLeaveListener);
 
         return api;
     }

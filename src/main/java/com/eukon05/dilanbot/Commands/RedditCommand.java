@@ -1,4 +1,4 @@
-package com.eukon05.dilanbot.Listeners;
+package com.eukon05.dilanbot.Commands;
 
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.google.gson.Gson;
@@ -13,21 +13,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RedditMessageListener extends AbstractMessageListener {
+public class RedditCommand extends Command {
 
     private final Gson gson;
 
     @Autowired
-    public RedditMessageListener(Gson gson){
-        super(" reddit");
+    public RedditCommand(Gson gson, CommandMap commandMap){
+        super(commandMap);
         this.gson = gson;
-
+        addToCommands("reddit");
     }
 
+
     @Override
-    void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value) {
+    public void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments) {
 
         new Thread(() -> {
+
+            String value = fuseArguments(arguments);
 
             ServerTextChannel channel = event.getServerTextChannel().get();
 
@@ -96,9 +99,7 @@ public class RedditMessageListener extends AbstractMessageListener {
 
         }).start();
 
-
     }
-
 }
 
 class RedditSubmission{

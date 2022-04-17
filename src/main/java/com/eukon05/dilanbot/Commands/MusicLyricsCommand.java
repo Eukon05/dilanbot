@@ -1,4 +1,4 @@
-package com.eukon05.dilanbot.Listeners;
+package com.eukon05.dilanbot.Commands;
 
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.eukon05.dilanbot.Lavaplayer.ServerMusicManager;
@@ -24,7 +24,7 @@ import java.net.URL;
 import java.util.Locale;
 
 @Component
-public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
+public class MusicLyricsCommand extends MusicCommand {
 
     private final GLA gla;
     private JsonArray wordList;
@@ -32,19 +32,22 @@ public class MusicLyricsMessageListener extends AbstractMusicMessageListener{
     private final URL wordlistUrl;
 
     @Autowired
-    public MusicLyricsMessageListener(GLA gla, Gson gson, @Value("${lyrics.wordlist.path}") String url) throws MalformedURLException {
-        super(" lyrics");
+    public MusicLyricsCommand(GLA gla, Gson gson, @Value("${lyrics.wordlist.path}") String url, CommandMap commandMap) throws MalformedURLException {
+        super(commandMap);
         this.gla=gla;
         this.gson = gson;
         this.wordlistUrl = new URL(url);
+        addToCommands("lyrics");
     }
 
     @Override
-    void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
+    public void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments, User me, ServerMusicManager manager) {
 
         new Thread(() -> {
 
             ServerTextChannel channel = event.getServerTextChannel().get();
+
+            String value = fuseArguments(arguments);
 
             try {
                 wordList = gson.fromJson(new InputStreamReader(wordlistUrl.openStream()), JsonArray.class);

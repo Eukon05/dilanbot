@@ -1,49 +1,51 @@
-package com.eukon05.dilanbot.Listeners;
+package com.eukon05.dilanbot.Commands;
 
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.eukon05.dilanbot.Lavaplayer.ServerMusicManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MusicPlayMessageListener extends AbstractMusicMessageListener {
+public class MusicPlayCommand extends MusicCommand {
 
-    public MusicPlayMessageListener(){
-        super(" play");
+    @Autowired
+    public MusicPlayCommand(CommandMap commandMap){
+        super(commandMap);
+        addToCommands("play");
     }
 
     @Override
-    void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
+    public void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments, User me, ServerMusicManager manager) {
 
         new Thread(() -> {
 
             ServerTextChannel channel = event.getServerTextChannel().get();
-            String valueCopy = value; //Required, since variables accessed from inner classes have to be final, and we can't reassign the variable "value" directly
+            String value = fuseArguments(arguments);
 
-            if(valueCopy.isEmpty()) {
+            if (value.isEmpty()) {
 
-                if(!comboCheck(me, event, manager))
+                if (!comboCheck(me, event, manager))
                     return;
 
                 if (manager.player.isPaused()) {
                     manager.player.setPaused(false);
                     channel.sendMessage("**:arrow_forward: Music resumed**");
-                }
-                else
+                } else
                     channel.sendMessage("**:x: The track isn't paused!**");
 
                 return;
             }
 
-            if (!valueCopy.startsWith("http://") && !valueCopy.startsWith("https://")) {
-                valueCopy = "ytsearch:" + valueCopy;
+            if (!value.startsWith("http://") && !value.startsWith("https://")) {
+                value = "ytsearch:" + value;
             }
 
-            if(me.getConnectedVoiceChannel(channel.getServer()).isEmpty()){
+            if (me.getConnectedVoiceChannel(channel.getServer()).isEmpty()) {
 
-                if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty()){
+                if (event.getMessageAuthor().getConnectedVoiceChannel().isEmpty()) {
                     channel.sendMessage("**:x: You have to be connected to a voice channel!**");
                     return;
                 }
@@ -59,17 +61,13 @@ public class MusicPlayMessageListener extends AbstractMusicMessageListener {
                     return null;
                 });
 
-            }
-            else
-                if(!isUserOnVCCheck(me, event))
-                    return;
+            } else if (!isUserOnVCCheck(me, event))
+                return;
 
-            playerManager.loadAndPlay(channel, valueCopy);
+            playerManager.loadAndPlay(channel, value);
 
         }).start();
 
     }
-
-
 
 }

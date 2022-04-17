@@ -1,4 +1,4 @@
-package com.eukon05.dilanbot.Listeners;
+package com.eukon05.dilanbot.Commands;
 
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.eukon05.dilanbot.Lavaplayer.PlayerManager;
@@ -6,30 +6,30 @@ import com.eukon05.dilanbot.Lavaplayer.ServerMusicManager;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+public abstract class MusicCommand extends Command{
 
-public abstract class AbstractMusicMessageListener extends AbstractMessageListener{
+    protected PlayerManager playerManager;
 
-    PlayerManager playerManager;
-
-    public AbstractMusicMessageListener(String keyWord) {
-        super(keyWord);
+    public MusicCommand(CommandMap commandMap) {
+        super(commandMap);
     }
 
     @Autowired
-    private void setPlayerManager(PlayerManager playerManager){
+    public void setPlayerManager(PlayerManager playerManager){
         this.playerManager=playerManager;
     }
-
     @Override
-    void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value) {
+    public void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments){
+
         User me = event.getApi().getYourself();
         ServerMusicManager manager = playerManager.getServerMusicManager(event.getServer().get().getId());
-        childOnMessageCreate(event, serverDTO, value, me, manager);
+        run(event, serverDTO, arguments, me, manager);
+
     }
 
-    abstract void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager);
+    public abstract void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments, User me, ServerMusicManager manager);
 
-    boolean isBotOnVCCheck(User me, MessageCreateEvent event){
+    protected boolean isBotOnVCCheck(User me, MessageCreateEvent event){
 
         if(me.getConnectedVoiceChannel(event.getServer().get()).isEmpty()){
             event.getChannel().sendMessage("**:x: I'm not connected to a voice channel!**");
@@ -40,7 +40,7 @@ public abstract class AbstractMusicMessageListener extends AbstractMessageListen
 
     }
 
-    boolean isUserOnVCCheck(User me, MessageCreateEvent event){
+    protected boolean isUserOnVCCheck(User me, MessageCreateEvent event){
 
         if(event.getMessageAuthor().getConnectedVoiceChannel().isEmpty() ||
                 !(me.getConnectedVoiceChannel(event.getServerTextChannel().get().getServer()).get() == event.getMessageAuthor().getConnectedVoiceChannel().get())) {
@@ -52,7 +52,7 @@ public abstract class AbstractMusicMessageListener extends AbstractMessageListen
 
     }
 
-    boolean isMusicPlayingCheck(ServerMusicManager manager, MessageCreateEvent event){
+    protected boolean isMusicPlayingCheck(ServerMusicManager manager, MessageCreateEvent event){
 
         if(manager.player.getPlayingTrack()==null) {
             event.getChannel().sendMessage("**:x: Nothing is playing right now**");
@@ -63,8 +63,9 @@ public abstract class AbstractMusicMessageListener extends AbstractMessageListen
 
     }
 
-    boolean comboCheck(User me, MessageCreateEvent event, ServerMusicManager manager){
+    protected boolean comboCheck(User me, MessageCreateEvent event, ServerMusicManager manager){
         return isBotOnVCCheck(me, event) && isUserOnVCCheck(me, event) && isMusicPlayingCheck(manager, event);
     }
+
 
 }

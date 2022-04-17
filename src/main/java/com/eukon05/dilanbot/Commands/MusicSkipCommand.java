@@ -1,4 +1,4 @@
-package com.eukon05.dilanbot.Listeners;
+package com.eukon05.dilanbot.Commands;
 
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.eukon05.dilanbot.Lavaplayer.ServerMusicManager;
@@ -8,18 +8,20 @@ import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MusicSkipMessageListener extends AbstractMusicMessageListener {
+public class MusicSkipCommand extends MusicCommand {
 
-    public MusicSkipMessageListener(){
-        super(" skip");
+    @Autowired
+    public MusicSkipCommand(CommandMap commandMap){
+        super(commandMap);
+        addToCommands("skip");
     }
 
     @Override
-    void childOnMessageCreate(MessageCreateEvent event, ServerDTO serverDTO, String value, User me, ServerMusicManager manager) {
-
+    public void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments, User me, ServerMusicManager manager) {
         new Thread(() -> {
 
             ServerTextChannel channel = event.getServerTextChannel().get();
@@ -47,7 +49,5 @@ public class MusicSkipMessageListener extends AbstractMusicMessageListener {
                     .send(channel);
 
         }).start();
-
     }
-
 }
