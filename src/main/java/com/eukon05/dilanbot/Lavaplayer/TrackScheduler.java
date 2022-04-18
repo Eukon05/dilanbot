@@ -40,8 +40,10 @@ public class TrackScheduler extends AudioEventAdapter {
      * Start the next track, stopping the current one if it is playing.
      */
     public void nextTrack() {
-        if(queue.size()==0)
+        if(queue.size()==0) {
+            player.startTrack(null, false);
             return;
+        }
 
         player.startTrack(queue.get(0), false);
         queue.remove(0);

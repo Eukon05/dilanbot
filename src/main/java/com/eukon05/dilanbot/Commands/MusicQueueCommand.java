@@ -56,8 +56,6 @@ public class MusicQueueCommand extends MusicCommand{
             else
                 page = Integer.parseInt(arguments[1]);
 
-
-
             MessageBuilder messageBuilder = new MessageBuilder();
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle("Tracks in the queue");
