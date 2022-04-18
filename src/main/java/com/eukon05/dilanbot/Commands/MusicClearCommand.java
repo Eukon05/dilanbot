@@ -35,8 +35,11 @@ public class MusicClearCommand extends MusicCommand {
             }
 
             manager.scheduler.clearQueue();
-            channel.sendMessage("**Cleared " + queueSize + " tracks from the queue!**");
 
+            if(queueSize==1)
+                channel.sendMessage("**Removed 1 track from the queue!**");
+            else
+                channel.sendMessage("**Removed " + queueSize + " tracks from the queue!**");
         }).start();
 
 
