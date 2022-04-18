@@ -28,6 +28,7 @@ public class MusicStopCommand extends MusicCommand {
 
             manager.player.stopTrack();
             manager.scheduler.loopTrack=null;
+            manager.player.setPaused(false);
             manager.scheduler.clearQueue();
             channel.sendMessage("**:no_entry: Music stopped**");
 
