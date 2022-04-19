@@ -1,7 +1,7 @@
 <img src="dilan-banner.png" style="margin-left: auto; margin-right: auto" alt="banner">
 
 
-<h2 style="text-align: center">
+<h2 align="center">
 <a href="https://discord.com/api/oauth2/authorize?client_id=913511878523752519&permissions=274914725120&scope=bot">Add the bot to your server by clicking this link!</a>
 </h2>
 
