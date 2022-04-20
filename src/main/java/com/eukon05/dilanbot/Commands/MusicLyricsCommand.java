@@ -126,7 +126,7 @@ public class MusicLyricsCommand extends MusicCommand {
             embedBuilder.setTitle(hit.getTitle());
             embedBuilder.setDescription(hit.fetchLyrics());
             embedBuilder.setImage(hit.getImageUrl());
-            embedBuilder.setFooter("*Powered by Genius.com*");
+            embedBuilder.setFooter("**Powered by Genius.com**");
 
             builder.setEmbed(embedBuilder);
 

@@ -24,6 +24,7 @@ The bot's default prefix is "dilan", every command uses this pattern: <br>
 - `lyrics [song title]` - shows lyrics for the specified song. If the song title is empty, it shows lyrics for what is currently playing
 - `8ball [question]` - asks the magic 8-ball the specified question
 - `reddit [subreddit]` - shows a random post from the specified subreddit
+- `prefix [yourprefix]` - changes the prefix of the bot to the one specified
 
 <h2>FAQ</h2>
 
@@ -33,10 +34,10 @@ The bot's default prefix is "dilan", every command uses this pattern: <br>
 
     <br>
 - I kicked the bot from my server and added it back, but it won't react to any commands!<br>
-    - There's a high chance that you've changed the bot's prefix! <s>You can change it back, using the "dilan prefix" command.<br>
-      If the issue still persists, feel free to open an issue on this GitHub project</s><br>
-      Currently it is not possible to reset the prefix, due to the recent rewrite of the entire command handling system.<br>
-      I'm working on a fix and it should be implemented in the 2.1.2 release
+    - There's a high chance that you've changed the bot's prefix!<br>
+    The prefix gets reset everytime you add the bot back to your server, you can change it back to your custom one using <br>
+    `dilan prefix [yourprefix]`<br>
+    If the issue still persists, feel free to open an issue on this GitHub repo.
 
 
 <h2>How to host the bot yourself</h2>

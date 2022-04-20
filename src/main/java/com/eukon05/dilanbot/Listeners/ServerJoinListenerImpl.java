@@ -28,8 +28,7 @@ public class ServerJoinListenerImpl implements ServerJoinListener {
     @Override
     public void onServerJoin(ServerJoinEvent event) {
 
-        if(serverService.getServerById(event.getServer().getId())==null)
-            serverService.addServer(event.getServer().getId());
+        serverService.addServer(event.getServer().getId());
 
         try{
             event.getServer().getSystemChannel().ifPresent(channel -> {
