@@ -1,5 +1,6 @@
 package com.eukon05.dilanbot.Commands;
 
+import com.eukon05.dilanbot.DTOs.RedditSubmissionDTO;
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -11,6 +12,9 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class RedditCommand extends Command {
@@ -24,7 +28,6 @@ public class RedditCommand extends Command {
         addToCommands("reddit");
     }
 
-
     @Override
     public void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments) {
 
@@ -37,7 +40,9 @@ public class RedditCommand extends Command {
             try {
 
                 //For some reason this throws an exception when Reddit redirects the HTTP client to a URL containing non-ascii characters
-                HttpResponse<String> response = Unirest.get("https://reddit.com/r/" + value + "/random.json").asString();
+                HttpResponse<String> response = Unirest
+                        .get("https://reddit.com/r/" + URLEncoder.encode(value, StandardCharsets.UTF_8.toString()) + "/random.json")
+                        .asString();
 
                 switch (response.getStatus()) {
 
@@ -56,17 +61,18 @@ public class RedditCommand extends Command {
 
                     default: {
                         channel.sendMessage("An unexpected Reddit API error has occurred: " + response.getBody());
+                        return;
                     }
 
                 }
 
-                RedditSubmission submission = gson
+                RedditSubmissionDTO submission = gson
                         .fromJson(gson.fromJson(response.getBody(), JsonArray.class)
                                 .get(0).getAsJsonObject().get("data")
                                 .getAsJsonObject().get("children").getAsJsonArray().get(0).getAsJsonObject().get("data")
-                                .getAsJsonObject(), RedditSubmission.class);
+                                .getAsJsonObject(), RedditSubmissionDTO.class);
 
-                if (submission.over_18 && !channel.isNsfw()) {
+                if (submission.isOver_18() && !channel.isNsfw()) {
                     channel.sendMessage("This isn't a time and place for that, use an NSFW-enabled channel");
                     return;
                 }
@@ -74,19 +80,19 @@ public class RedditCommand extends Command {
                 MessageBuilder builder = new MessageBuilder();
 
                 EmbedBuilder embedBuilder = new EmbedBuilder()
-                        .setAuthor(submission.author)
-                        .setTitle(submission.title)
-                        .setDescription(submission.selftext)
-                        .setUrl("https://reddit.com" + submission.permalink)
-                        .setFooter("A random post from " + submission.subreddit_name_prefixed);
+                        .setAuthor(submission.getAuthor())
+                        .setTitle(submission.getTitle())
+                        .setDescription(submission.getSelfText())
+                        .setUrl("https://reddit.com" + submission.getPermalink())
+                        .setFooter("A random post from " + submission.getSubreddit_name_prefixed());
 
-                if (submission.url != null && !submission.is_video)
-                    embedBuilder.setImage(submission.url);
+                if (submission.getUrl() != null && !submission.is_video())
+                    embedBuilder.setImage(submission.getUrl());
 
                 builder.setEmbed(embedBuilder);
                 builder.send(channel);
 
-                if (submission.is_video)
+                if (submission.is_video())
                     new MessageBuilder()
                             .setEmbed(new EmbedBuilder()
                                     .setDescription("The above Reddit post contains a video, visit it in your browser to see it!"))
@@ -100,15 +106,4 @@ public class RedditCommand extends Command {
         }).start();
 
     }
-}
-
-class RedditSubmission{
-    boolean over_18;
-    boolean is_video;
-    String permalink;
-    String url;
-    String selftext;
-    String author;
-    String title;
-    String subreddit_name_prefixed;
 }

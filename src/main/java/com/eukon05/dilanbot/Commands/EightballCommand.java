@@ -3,6 +3,7 @@ package com.eukon05.dilanbot.Commands;
 import com.eukon05.dilanbot.DTOs.ServerDTO;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -11,6 +12,9 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 
 @Component
@@ -36,7 +40,9 @@ public class EightballCommand extends Command {
 
             try {
 
-                HttpResponse<String> response = Unirest.get("https://8ball.delegator.com/magic/JSON/" + value).asString();
+                HttpResponse<String> response = Unirest
+                        .get("https://8ball.delegator.com/magic/JSON/" + URLEncoder.encode(value, StandardCharsets.UTF_8))
+                        .asString();
                 JsonObject responseJson = gson.fromJson(response.getBody(), JsonObject.class).get("magic").getAsJsonObject();
 
                 new MessageBuilder().setEmbed(new EmbedBuilder()
@@ -46,8 +52,12 @@ public class EightballCommand extends Command {
                 ).send(channel);
 
             }
+            catch(JsonSyntaxException ex){
+                channel.sendMessage("Something went wrong: Question contains invalid characters");
+                ex.printStackTrace();
+            }
             catch (Exception ex){
-                channel.sendMessage("Something went wrong! " + ex.getMessage());
+                channel.sendMessage("Something went wrong: " + ex.getMessage());
                 ex.printStackTrace();
             }
 
