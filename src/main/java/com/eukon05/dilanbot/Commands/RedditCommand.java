@@ -41,14 +41,13 @@ public class RedditCommand extends Command {
                         .get("https://www.reddit.com/r/" + URLEncoder.encode(value, StandardCharsets.UTF_8.toString()) + "/random.json")
                         .asString();
 
-                //temporary fix
-                if(!init.getBody().isBlank()){
-                    channel.sendMessage("This subreddit is private");
-                    return;
-                }
-
                 switch (init.getStatus()) {
                     case 302: {
+                        //temporary fix
+                        if(!init.getBody().isBlank()){
+                            channel.sendMessage("This subreddit is private");
+                            return;
+                        }
                         break;
                     }
 
