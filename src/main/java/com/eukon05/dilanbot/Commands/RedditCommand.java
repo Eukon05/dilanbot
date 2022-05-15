@@ -13,6 +13,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -30,41 +31,47 @@ public class RedditCommand extends Command {
 
     @Override
     public void run(MessageCreateEvent event, ServerDTO serverDTO, String[] arguments) {
-
         new Thread(() -> {
-
             String value = fuseArguments(arguments);
 
             ServerTextChannel channel = event.getServerTextChannel().get();
 
             try {
-
-                //For some reason this throws an exception when Reddit redirects the HTTP client to a URL containing non-ascii characters
-                HttpResponse<String> response = Unirest
-                        .get("https://reddit.com/r/" + URLEncoder.encode(value, StandardCharsets.UTF_8.toString()) + "/random.json")
+                HttpResponse<String> init = Unirest
+                        .get("https://www.reddit.com/r/" + URLEncoder.encode(value, StandardCharsets.UTF_8.toString()) + "/random.json")
                         .asString();
 
-                switch (response.getStatus()) {
+                //temporary fix
+                if(!init.getBody().isBlank()){
+                    channel.sendMessage("This subreddit is private");
+                    return;
+                }
 
-                    case 200:
+                switch (init.getStatus()) {
+                    case 302: {
                         break;
+                    }
 
                     case 404: {
                         channel.sendMessage("This subreddit doesn't exist");
                         return;
                     }
 
-                    case 403: {
-                        channel.sendMessage("This subreddit is private");
-                        return;
-                    }
-
                     default: {
-                        channel.sendMessage("An unexpected Reddit API error has occurred: " + response.getBody());
+                        channel.sendMessage("An unexpected Reddit API error has occurred: " + init.getBody());
                         return;
                     }
-
                 }
+
+                URL url = new URL(init.getHeaders().get("location").get(0));
+
+                String[] path = url.getPath().split("/");
+
+                path[path.length-2] = URLEncoder.encode(path[path.length-2], StandardCharsets.UTF_8.toString());
+
+                HttpResponse<String> response = Unirest
+                        .get("https://www.reddit.com/" + String.join("/", path))
+                        .asString();
 
                 RedditSubmissionDTO submission = gson
                         .fromJson(gson.fromJson(response.getBody(), JsonArray.class)
@@ -102,8 +109,6 @@ public class RedditCommand extends Command {
                 channel.sendMessage("An unexpected backend error has occurred: " + ex.getMessage());
                 ex.printStackTrace();
             }
-
         }).start();
-
     }
 }
