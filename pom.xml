@@ -10,13 +10,13 @@
     </parent>
     <groupId>com.eukon05</groupId>
     <artifactId>dilanbot</artifactId>
-    <version>2.1.6</version>
+    <version>2.1.7</version>
     <name>dilanbot</name>
     <description>dilanbot</description>
     <properties>
 
-        <java.version>11</java.version>
-        <lavaplayer.version>custom-SNAPSHOT</lavaplayer.version>
+        <java.version>17</java.version>
+        <lavaplayer.version>dd40931</lavaplayer.version>
         <javacord.version>3.4.0</javacord.version>
         <unirest.version>3.13.8</unirest.version>
         <okhttp.version>4.9.3</okhttp.version>
