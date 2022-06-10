@@ -38,7 +38,7 @@ public class RedditCommand extends Command {
 
             try {
                 HttpResponse<String> init = Unirest
-                        .get("https://www.reddit.com/r/" + URLEncoder.encode(value, StandardCharsets.UTF_8.toString()) + "/random.json")
+                        .get("https://www.reddit.com/r/" + URLEncoder.encode(value, StandardCharsets.UTF_8) + "/random.json")
                         .asString();
 
                 switch (init.getStatus()) {
@@ -66,7 +66,7 @@ public class RedditCommand extends Command {
 
                 String[] path = url.getPath().split("/");
 
-                path[path.length-2] = URLEncoder.encode(path[path.length-2], StandardCharsets.UTF_8.toString());
+                path[path.length-2] = URLEncoder.encode(path[path.length-2], StandardCharsets.UTF_8);
 
                 HttpResponse<String> response = Unirest
                         .get("https://www.reddit.com/" + String.join("/", path))
