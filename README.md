@@ -5,9 +5,12 @@
 <a href="https://discord.com/api/oauth2/authorize?client_id=913511878523752519&permissions=274914725120&scope=bot">Add the bot to your server by clicking this link!</a>
 </h2>
 
-<h2>Features and usage</h2>
+# Important note
+This bot is now in "maintenance mode" - this means that it will receive only dependency updates and no new features.  
+This is due to the codebase being very cluttered and in need of a refactor/rewrite, but because I'm currently working on other projects and learning mainly web/backend development, rewriting this bot's code is not a priority to me.
 
-The bot's default prefix is "dilan", every command uses this pattern: <br>
+## Features and usage
+The bot's default prefix is "dilan", every command uses this pattern:  
 `[prefix] [command] [arguments]`
 
 - `play [song title]` - plays the requested song from YouTube, or puts it in the queue if something is already playing
@@ -26,74 +29,69 @@ The bot's default prefix is "dilan", every command uses this pattern: <br>
 - `reddit [subreddit]` - shows a random post from the specified subreddit
 - `prefix [yourprefix]` - changes the prefix of the bot to the one specified
 
-<h2>FAQ</h2>
+## FAQ
+- Does the bot store my information?
+    - No, we don't store any user-related data.  
+    The server's ID, however, goes into our database, to enable our users to change the prefix of the bot. That's all.
 
-- Does the bot store my information? <br>
-    - No, we don't store any user-related data.<br>
-      The server's ID, however, goes into our database, to enable our users to change the prefix of the bot. That's all.
 
-    <br>
-- I kicked the bot from my server and added it back, but it won't react to any commands!<br>
-    - There's a high chance that you've changed the bot's prefix!<br>
-    The prefix gets reset everytime you add the bot back to your server, you can change it back to your custom one using <br>
-    `dilan prefix [yourprefix]`<br>
+- I kicked the bot from my server and added it back, but it won't react to any commands!
+    - There's a high chance that you've changed the bot's prefix!  
+    The prefix gets reset everytime you add the bot back to your server, you can change it back to your custom one using 
+    `dilan prefix [yourprefix]`  
     If the issue still persists, feel free to open an issue on this GitHub repo.
 
 
-<h2>How to host the bot yourself</h2>
-Before you start, you'll need to create an access token and a database.<br>
+## How to host the bot yourself
+Before you start, you'll need to create an access token and a database.
 
-1. Go to <a href="https://discord.com/developers/applications">Discord Developer Portal</a>
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
    and create a new application.
     - Go to the `BOT` tab on the left and click `create a bot`
-    - Scroll down to `Privileged Gateway Intents` and enable all of the options
+    - Scroll down to `Privileged Gateway Intents` and enable all the options
     - Scroll down to `Bot Permissions` and select `Administrator` (or the permissions that are set in the invite link above)
     - Now, go to `OAuth2 -> Url Generator` on the left of the screen
     - Select `bot`, then `Administrator` (or the permissions that are set in the invite link above)
-    - What you've ended up with is an invite link that you can use to add the bot to your Discord server!
+    - What you've ended up with is an invitation link that you can use to add the bot to your Discord server!
 
 2. Create a PostgreSQL database.<br>
-   The easiest way to do that, is by following <a href="https://dev.to/prisma/how-to-setup-a-free-postgresql-database-on-heroku-1dc1">this tutorial</a>. <br>
-   If you are a technical user, you can of course use a self-hosted Postgres DB, or follow along and use a Docker Compose image.
+The easiest way to do that, is by following [this tutorial](https://dev.to/prisma/how-to-setup-a-free-postgresql-database-on-heroku-1dc1)   
+If you are a technical user, you can of course use a self-hosted Postgres DB, or follow along and use a Docker Compose image.
 
-Now comes the fun part: you'll get to finally start the bot up!<br>
+Now comes the fun part: you'll get to finally start the bot up!
 
-<h3>Hosting the bot on Heroku</h3>
-If you've chosen to follow the tutorial on hosting the database on heroku, here's how you can easily host the bot on the same heroku app:<br>
+### Hosting the bot on Heroku
+If you've chosen to follow the tutorial on hosting the database on heroku, here's how you can easily host the bot on the same heroku app:
 
 1. Make a private fork of this GitHub repository
 2. On your heroku app's dashboard, go to the `Deploy` tab, and connect your GitHub account to Heroku, then select the forked repository
-3. Now, go to the `Settings` tab, reveal the config vars, and add the one below:<br>
-   `key: DISCORD.TOKEN value: yourdiscordbottoken`
+3. Now, go to the `Settings` tab, reveal the config vars, and add the one below:  
+`key: DISCORD.TOKEN value: yourdiscordbottoken`
 
 4. After doing all of this correctly, head back to the `Deploy` tab, scroll down to the bottom and deploy the master branch
 5. Go to the main tab of the dashboard, select `workers` and enable the worker
 
-Congratulations! You should now have a fully configured and working instance of Dilan running on Heroku! <br>
+Congratulations! You should now have a fully configured and working instance of Dilan running on Heroku!  
 You can invite him to your Discord server by using the invite link you've generated in the previous section.
 
-<h3>Hosting the bot on a private server with Docker</h3>
-
-If you're a technical user, good news! <br>
-You can also host the bot on your own server by using Docker!<br>
+### Hosting the bot on a private server with Docker
+If you're a technical user, good news!  
+You can also host the bot on your own server by using Docker!  
 There are two methods of achieving that:
 
 - Using a Docker Compose image
 - Using a regular Docker image and providing a database yourself
 
 
-<h4>Docker Compose method</h4>
-
-
-1. Download the `docker-compose.yml` file from this repo and save it in a new directory</li>
-2. Modify the file to contain your Discord bot token.<br>
-   I also <b>STRONGLY</b> advise changing the default database credentials!
-3. Run the following command in the directory containing the file:<br> `docker-compose up`
+#### Docker Compose method
+1. Download the `docker-compose.yml` file from this repo and save it in a new directory
+2. Modify the file to contain your Discord bot token.  
+I also **STRONGLY** advise changing the default database credentials!
+3. Run the following command in the directory containing the file: `docker-compose up`
 
 That's it, you should have a fully configured and working instance of Dilan running on your machine!
 
-<h4>Regular Docker image method</h4>
-
+#### Regular Docker image method
 Here's a command that you'll have to run in order to start the bot up on your machine:
 
 ```
@@ -104,32 +102,27 @@ docker run \
             -e DISCORD.TOKEN=yourdiscordbottoken \
             eukon/dilan
 ```
-Please note that the command above is intended for Linux hosts. <br>
+Please note that the command above is intended for Linux hosts.  
 If you want to use Windows, replace the `` \ `` with `` ` ``
 
-<h2>Contributing</h2>
+## Contributing
 If you have an idea for a new feature or a bugfix, feel free to open an issue or a pull request!
 
-<h2>Credits</h2>
-The bot was made using the following libraries:
+## Credits
+This bot is using the following libraries:
 
-- <a href="https://spring.io">Spring Framework</a>
+- [Spring Framework](https://spring.io)
 
-- <a href="https://javacord.org/">Javacord</a>
+- [Javacord](https://javacord.org/)
 
-- <a href="https://github.com/Walkyst/lavaplayer-fork">Lavaplayer Fork</a> by Walkyst (and original Lavaplayer by Sedmelluq)
+- [LavaPlayer Fork](https://github.com/Walkyst/lavaplayer-fork) by Walkyst
 
-- <a href="https://github.com/LowLevelSubmarine/GeniusLyricsAPI">GeniusLyricsAPI</a> by LowLevelSubmarine
+- [GeniusLyricsApi](https://github.com/LowLevelSubmarine/GeniusLyricsAPI) by LowLevelSubmarine
 
-- <a href="https://github.com/google/gson">Gson</a>
+- [Gson](https://github.com/google/gson)
 
-- <a href="http://kong.github.io/unirest-java/">Unirest For Java</a> by Kong
+- [Unirest For Java](http://kong.github.io/unirest-java/) by Kong
 
-- <a href="https://flywaydb.org/">Flyway</a>
+- [PostgreSQL](https://www.postgresql.org/)
 
-- <a href="https://www.postgresql.org/">PostgreSQL</a>
-
-- <a href="https://github.com/mattbdean/JRAW">JRAW</a> by mattbdean<br>
-  (no longer used in the project)
-
-Big shoutout to everyone who has contributed to the projects listed above, without you, Dilan would not be possible!<br><br>
+Big shout out to everyone who has contributed to the projects listed above, without you, Dilan would not be possible!

@@ -1,0 +1,110 @@
+package com.eukon05.dilanbot.lavaplayer;
+
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.audio.AudioConnection;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+
+@Component
+@RequiredArgsConstructor
+public class PlayerManager {
+
+    //Code copied from/inspired by MenuDocs, go check him out on github!
+    //https://github.com/MenuDocs/JDA4-tutorials/blob/EP28/src/main/java/me/duncte123/jdatuts/lavaplayer/PlayerManager.java
+
+    private final AudioPlayerManager audioPlayerManager;
+    @Setter
+    private DiscordApi api;
+
+    private final HashMap<Long, ServerMusicManager> playersMap = new HashMap<>();
+    private final HashMap<Long, AudioConnection> connectionsMap = new HashMap<>();
+
+    public ServerMusicManager getServerMusicManager(Long serverID) {
+        playersMap.putIfAbsent(serverID, new ServerMusicManager(audioPlayerManager, api));
+        return playersMap.get(serverID);
+    }
+
+    public AudioConnection getServerAudioConnection(Long serverID) {
+        return connectionsMap.get(serverID);
+    }
+
+    public void removeServerAudioConnection(Long serverID) {
+        connectionsMap.remove(serverID);
+    }
+
+    public void addServerAudioConnection(Long serverID, AudioConnection audioConnection) {
+        connectionsMap.put(serverID, audioConnection);
+    }
+
+    public void loadAndPlay(ServerTextChannel textChannel, String trackUrl) {
+        ServerMusicManager manager = getServerMusicManager(textChannel.getServer().getId());
+
+        audioPlayerManager.loadItemOrdered(manager, trackUrl, new AudioLoadResultHandler() {
+            String action = "Playing";
+
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                if (manager.getPlayer().getPlayingTrack() != null)
+                    action = "Queued";
+
+                manager.getScheduler().queue(track);
+
+                new MessageBuilder().setEmbed(new EmbedBuilder()
+                                .setTitle(action)
+                                .setDescription("[" + track.getInfo().title + "](" + track.getInfo().uri + ")")
+                                .setThumbnail(track.getInfo().artworkUrl))
+                        .send(textChannel);
+            }
+
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+                if (manager.getPlayer().getPlayingTrack() != null)
+                    action = "Queued";
+
+                if (!playlist.isSearchResult()) {
+
+                    for (AudioTrack track : playlist.getTracks()) {
+                        manager.getScheduler().queue(track);
+                    }
+
+                    new MessageBuilder().setEmbed(new EmbedBuilder()
+                                    .setDescription("*:notes: " + action + " playlist \"" + playlist.getName() + "\"*"))
+                            .send(textChannel);
+                } else {
+
+                    manager.getScheduler().queue(playlist.getTracks().get(0));
+
+                    new MessageBuilder()
+                            .setEmbed(new EmbedBuilder()
+                                    .setTitle(action)
+                                    .setDescription("[" + playlist.getTracks().get(0).getInfo().title + "](" + playlist.getTracks().get(0).getInfo().uri + ")")
+                                    .setThumbnail(playlist.getTracks().get(0).getInfo().artworkUrl))
+                            .send(textChannel);
+                }
+            }
+
+            @Override
+            public void noMatches() {
+                textChannel.sendMessage("No matching tracks found :c");
+            }
+
+            @Override
+            public void loadFailed(FriendlyException e) {
+                textChannel.sendMessage("Something went wrong! " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+    }
+
+}
