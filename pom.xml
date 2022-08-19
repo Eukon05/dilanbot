@@ -16,7 +16,7 @@
     <properties>
 
         <java.version>17</java.version>
-        <lavaplayer.version>custom-SNAPSHOT</lavaplayer.version>
+        <lavaplayer.version>1.3.98.4</lavaplayer.version>
         <javacord.version>3.5.0</javacord.version>
         <unirest.version>3.13.10</unirest.version>
         <okhttp.version>4.10.0</okhttp.version>
