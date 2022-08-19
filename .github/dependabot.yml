@@ -9,6 +9,8 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "com.github.walkyst:lavaplayer-fork" # The latest custom LavaPlayer version is always downloaded on deploy
       
   - package-ecosystem: "github-actions"
     directory: "/"
