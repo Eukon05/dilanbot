@@ -43,45 +43,20 @@ The bot's default prefix is "dilan", every command uses this pattern:
 
 
 ## How to host the bot yourself
-Before you start, you'll need to create an access token and a database.
+Before you start, you'll need to create an access token:
 
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-   and create a new application.
-    - Go to the `BOT` tab on the left and click `create a bot`
-    - Scroll down to `Privileged Gateway Intents` and enable all the options
-    - Scroll down to `Bot Permissions` and select `Administrator` (or the permissions that are set in the invite link above)
-    - Now, go to `OAuth2 -> Url Generator` on the left of the screen
-    - Select `bot`, then `Administrator` (or the permissions that are set in the invite link above)
-    - What you've ended up with is an invitation link that you can use to add the bot to your Discord server!
+- Go to [Discord Developer Portal](https://discord.com/developers/applications) and create a new application.
+- Go to the `BOT` tab on the left and click `create a bot`
+- Scroll down to `Privileged Gateway Intents` and enable all the options
+- Scroll down to `Bot Permissions` and select `Administrator` (or the permissions that are set in the invite link above)
+- Now, go to `OAuth2 -> Url Generator` on the left of the screen
+- Select `bot`, then `Administrator` (or the permissions that are set in the invite link above)
+- What you've ended up with is an invitation link that you can use to add the bot to your Discord server!
 
-2. Create a PostgreSQL database.<br>
-The easiest way to do that, is by following [this tutorial](https://dev.to/prisma/how-to-setup-a-free-postgresql-database-on-heroku-1dc1)   
-If you are a technical user, you can of course use a self-hosted Postgres DB, or follow along and use a Docker Compose image.
+Now you can deploy the bot by using one of the following methods:
 
-Now comes the fun part: you'll get to finally start the bot up!
-
-### Hosting the bot on Heroku
-If you've chosen to follow the tutorial on hosting the database on heroku, here's how you can easily host the bot on the same heroku app:
-
-1. Make a private fork of this GitHub repository
-2. On your heroku app's dashboard, go to the `Deploy` tab, and connect your GitHub account to Heroku, then select the forked repository
-3. Now, go to the `Settings` tab, reveal the config vars, and add the one below:  
-`key: DISCORD.TOKEN value: yourdiscordbottoken`
-
-4. After doing all of this correctly, head back to the `Deploy` tab, scroll down to the bottom and deploy the master branch
-5. Go to the main tab of the dashboard, select `workers` and enable the worker
-
-Congratulations! You should now have a fully configured and working instance of Dilan running on Heroku!  
-You can invite him to your Discord server by using the invite link you've generated in the previous section.
-
-### Hosting the bot on a private server with Docker
-If you're a technical user, good news!  
-You can also host the bot on your own server by using Docker!  
-There are two methods of achieving that:
-
-- Using a Docker Compose image
-- Using a regular Docker image and providing a database yourself
-
+- A Docker Compose image
+- A regular Docker image with a database provided by you
 
 #### Docker Compose method
 1. Download the `docker-compose.yml` file from this repo and save it in a new directory
