@@ -2,6 +2,7 @@ package com.eukon05.dilanbot.command;
 
 import com.eukon05.dilanbot.domain.DiscordServer;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
+import com.eukon05.dilanbot.repository.CommandRepository;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -30,19 +31,16 @@ public class MusicLyricsCommand extends MusicCommand {
     private final Gson gson;
     private final URL wordlistUrl;
 
-    public MusicLyricsCommand(GLA gla, Gson gson, @Value("${lyrics.wordlist.path}") String url, CommandMap commandMap) throws MalformedURLException {
-        super(commandMap);
+    public MusicLyricsCommand(GLA gla, Gson gson, @Value("${lyrics.wordlist.path}") String url, CommandRepository commandRepository) throws MalformedURLException {
+        super("lyrics", commandRepository);
         this.gla = gla;
         this.gson = gson;
         this.wordlistUrl = new URL(url);
-        addToCommands("lyrics");
     }
 
     @Override
     public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
-
         new Thread(() -> {
-
             ServerTextChannel channel = event.getServerTextChannel().get();
 
             String value = fuseArguments(arguments);
@@ -122,8 +120,7 @@ public class MusicLyricsCommand extends MusicCommand {
             builder.setEmbed(embedBuilder);
 
             builder.send(channel);
-
         }).start();
-
     }
+
 }

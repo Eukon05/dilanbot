@@ -2,6 +2,7 @@ package com.eukon05.dilanbot.command;
 
 import com.eukon05.dilanbot.domain.DiscordServer;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
+import com.eukon05.dilanbot.repository.CommandRepository;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -10,16 +11,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class MusicRemoveCommand extends MusicCommand {
 
-    public MusicRemoveCommand(CommandMap commandMap) {
-        super(commandMap);
-        addToCommands("remove");
+    public MusicRemoveCommand(CommandRepository commandRepository) {
+        super("remove", commandRepository);
     }
 
     @Override
     public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
-
         new Thread(() -> {
-
             ServerTextChannel channel = event.getServerTextChannel().get();
 
             if (!isBotOnVCCheck(me, event) || !isUserOnVCCheck(me, event))
@@ -51,11 +49,7 @@ public class MusicRemoveCommand extends MusicCommand {
             String title = manager.getScheduler().getQueue().get(index - 1).getInfo().title;
             manager.getScheduler().getQueue().remove(index - 1);
             channel.sendMessage("**Removed \"" + title + "\" from the queue**");
-
-
         }).start();
-
     }
-
 
 }

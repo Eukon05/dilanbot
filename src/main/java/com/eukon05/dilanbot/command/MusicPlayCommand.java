@@ -2,6 +2,7 @@ package com.eukon05.dilanbot.command;
 
 import com.eukon05.dilanbot.domain.DiscordServer;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
+import com.eukon05.dilanbot.repository.CommandRepository;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -10,16 +11,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class MusicPlayCommand extends MusicCommand {
 
-    public MusicPlayCommand(CommandMap commandMap) {
-        super(commandMap);
-        addToCommands("play");
+    public MusicPlayCommand(CommandRepository commandRepository) {
+        super("play", commandRepository);
     }
 
     @Override
     public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
-
         new Thread(() -> {
-
             ServerTextChannel channel = event.getServerTextChannel().get();
             String value = fuseArguments(arguments);
 
@@ -63,9 +61,8 @@ public class MusicPlayCommand extends MusicCommand {
                 return;
 
             playerManager.loadAndPlay(channel, value);
-
         }).start();
-
     }
+
 
 }

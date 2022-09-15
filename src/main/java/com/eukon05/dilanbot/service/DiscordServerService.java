@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class DiscordServerService {
@@ -17,13 +15,11 @@ public class DiscordServerService {
     private final DiscordServerRepository discordServerRepository;
 
     public void addServer(Long id) {
-        DiscordServer dto = new DiscordServer(id, defaultPrefix);
-        discordServerRepository.save(dto);
+        discordServerRepository.save(new DiscordServer(id, defaultPrefix));
     }
 
     public DiscordServer getServerById(Long id) {
-        Optional<DiscordServer> dtoOptional = discordServerRepository.findById(id);
-        return dtoOptional.orElse(null);
+        return discordServerRepository.findById(id).orElse(null);
     }
 
     public void updateServer(DiscordServer discordServer) {

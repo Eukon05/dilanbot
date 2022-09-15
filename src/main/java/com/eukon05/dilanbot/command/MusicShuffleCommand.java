@@ -2,6 +2,7 @@ package com.eukon05.dilanbot.command;
 
 import com.eukon05.dilanbot.domain.DiscordServer;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
+import com.eukon05.dilanbot.repository.CommandRepository;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -12,9 +13,8 @@ import java.util.Collections;
 @Component
 public class MusicShuffleCommand extends MusicCommand {
 
-    public MusicShuffleCommand(CommandMap commandMap) {
-        super(commandMap);
-        addToCommands("shuffle");
+    public MusicShuffleCommand(CommandRepository commandRepository) {
+        super("shuffle", commandRepository);
     }
 
     @Override

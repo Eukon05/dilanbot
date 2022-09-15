@@ -2,6 +2,7 @@ package com.eukon05.dilanbot.command;
 
 import com.eukon05.dilanbot.domain.DiscordServer;
 import com.eukon05.dilanbot.domain.RedditSubmission;
+import com.eukon05.dilanbot.repository.CommandRepository;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import kong.unirest.HttpResponse;
@@ -21,10 +22,9 @@ public class RedditCommand extends Command {
 
     private final Gson gson;
 
-    public RedditCommand(Gson gson, CommandMap commandMap) {
-        super(commandMap);
+    public RedditCommand(Gson gson, CommandRepository commandRepository) {
+        super("reddit", commandRepository);
         this.gson = gson;
-        addToCommands("reddit");
     }
 
     @Override
@@ -103,4 +103,5 @@ public class RedditCommand extends Command {
             }
         }).start();
     }
+
 }

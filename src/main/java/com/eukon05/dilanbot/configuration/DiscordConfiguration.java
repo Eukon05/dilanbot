@@ -18,7 +18,6 @@ public class DiscordConfiguration {
 
     @Bean
     DiscordApi discordApi(MessageListener messageListener, ServerJoinListenerImpl serverJoinListener, VoiceChannelLeaveListener vcLeaveListener) {
-
         DiscordApi api = new DiscordApiBuilder()
                 .setToken(discordToken)
                 .setAllIntents()
@@ -28,7 +27,6 @@ public class DiscordConfiguration {
         api.addMessageCreateListener(messageListener);
         api.addServerJoinListener(serverJoinListener);
         api.addServerVoiceChannelMemberLeaveListener(vcLeaveListener);
-
         return api;
     }
 
