@@ -1,15 +1,13 @@
 package com.eukon05.dilanbot.command;
 
 import com.eukon05.dilanbot.domain.DiscordServer;
-import lombok.RequiredArgsConstructor;
+import com.eukon05.dilanbot.repository.CommandRepository;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-@RequiredArgsConstructor
 public abstract class Command {
-    private final CommandMap commandMap;
 
-    protected void addToCommands(String prefix) {
-        commandMap.getCommands().put(prefix, this);
+    protected Command(String prefix, CommandRepository commandRepository){
+        commandRepository.addCommand(prefix, this);
     }
 
     public abstract void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments);

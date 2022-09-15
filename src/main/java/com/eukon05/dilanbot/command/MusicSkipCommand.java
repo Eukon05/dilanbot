@@ -2,6 +2,7 @@ package com.eukon05.dilanbot.command;
 
 import com.eukon05.dilanbot.domain.DiscordServer;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
+import com.eukon05.dilanbot.repository.CommandRepository;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
@@ -13,15 +14,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class MusicSkipCommand extends MusicCommand {
 
-    public MusicSkipCommand(CommandMap commandMap) {
-        super(commandMap);
-        addToCommands("skip");
+    public MusicSkipCommand(CommandRepository commandRepository) {
+        super("skip", commandRepository);
     }
 
     @Override
     public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
         new Thread(() -> {
-
             ServerTextChannel channel = event.getServerTextChannel().get();
 
             if (!comboCheck(me, event, manager))
@@ -48,4 +47,5 @@ public class MusicSkipCommand extends MusicCommand {
 
         }).start();
     }
+
 }

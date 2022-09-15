@@ -13,7 +13,6 @@ public class AudioPlayerManagerConfiguration {
     AudioPlayerManager audioPlayerManager() {
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         playerManager.registerSourceManager(new YoutubeAudioSourceManager());
-
         return playerManager;
     }
 
