@@ -1,6 +1,7 @@
 package com.eukon05.dilanbot.command;
 
 import com.eukon05.dilanbot.domain.DiscordServer;
+import com.eukon05.dilanbot.repository.CommandRepository;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -21,17 +22,14 @@ public class EightballCommand extends Command {
 
     private final Gson gson;
 
-    public EightballCommand(CommandMap commandMap, Gson gson) {
-        super(commandMap);
+    public EightballCommand(CommandRepository commandRepository, Gson gson) {
+        super("8ball", commandRepository);
         this.gson = gson;
-        addToCommands("8ball");
     }
 
     @Override
     public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments) {
-
         new Thread(() -> {
-
             String value = fuseArguments(arguments);
 
             ServerTextChannel channel = event.getServerTextChannel().get();
@@ -56,8 +54,7 @@ public class EightballCommand extends Command {
                 channel.sendMessage("Something went wrong: " + ex.getMessage());
                 ex.printStackTrace();
             }
-
         }).start();
-
     }
+
 }

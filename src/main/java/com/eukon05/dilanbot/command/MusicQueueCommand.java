@@ -2,6 +2,7 @@ package com.eukon05.dilanbot.command;
 
 import com.eukon05.dilanbot.domain.DiscordServer;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
+import com.eukon05.dilanbot.repository.CommandRepository;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -12,15 +13,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class MusicQueueCommand extends MusicCommand {
 
-    public MusicQueueCommand(CommandMap commandMap) {
-        super(commandMap);
-        addToCommands("queue");
+    public MusicQueueCommand(CommandRepository commandRepository) {
+        super("queue", commandRepository);
     }
 
     @Override
     public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
         new Thread(() -> {
-
             ServerTextChannel channel = event.getServerTextChannel().get();
 
             if (!isBotOnVCCheck(me, event) || !isUserOnVCCheck(me, event))
@@ -79,4 +78,5 @@ public class MusicQueueCommand extends MusicCommand {
             messageBuilder.send(channel);
         }).start();
     }
+
 }

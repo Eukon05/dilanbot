@@ -2,6 +2,7 @@ package com.eukon05.dilanbot.command;
 
 import com.eukon05.dilanbot.domain.DiscordServer;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
+import com.eukon05.dilanbot.repository.CommandRepository;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -9,9 +10,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DisconnectCommand extends MusicCommand {
-    public DisconnectCommand(CommandMap commandMap) {
-        super(commandMap);
-        addToCommands("disconnect");
+    public DisconnectCommand(CommandRepository commandRepository) {
+        super("disconnect", commandRepository);
     }
 
     @Override
