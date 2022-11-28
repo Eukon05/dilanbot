@@ -1,34 +1,43 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
+import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
-import com.eukon05.dilanbot.repository.CommandRepository;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.MessageBuilder;
+import me.koply.kcommando.internal.OptionType;
+import me.koply.kcommando.internal.annotations.HandleSlash;
+import me.koply.kcommando.internal.annotations.Option;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.stereotype.Component;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
-@Component
-public class MusicQueueCommand extends MusicCommand {
+public class MusicQueueCommand extends AbstractMusicCommand {
 
-    public MusicQueueCommand(CommandRepository commandRepository) {
-        super("queue", commandRepository);
+
+    public MusicQueueCommand(PlayerManager playerManager) {
+        super(playerManager);
     }
 
+    @HandleSlash(name = "queue",
+            desc = "Lists tracks that are currently queued",
+            options = @Option(name = "page", desc = "Which page of the queue to display", type = OptionType.INTEGER),
+            global = true)
     @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
-            ServerTextChannel channel = event.getServerTextChannel().get();
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            interaction.respondLater();
+            ServerMusicManager manager = playerManager.getServerMusicManager(getServer(interaction).getId());
+            InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
 
-            if (!isBotOnVCCheck(me, event) || !isUserOnVCCheck(me, event))
+            long p = interaction.getArgumentLongValueByName("page").orElse(1L);
+
+            if (!voiceCheck(interaction))
                 return;
 
             int queueSize = manager.getScheduler().getQueue().size();
 
             if (queueSize == 0) {
-                channel.sendMessage("**The queue is empty!**");
+                responder.setContent("**The queue is empty!**").send();
                 return;
             }
 
@@ -41,23 +50,18 @@ public class MusicQueueCommand extends MusicCommand {
                 pages = pages + 1;
 
 
-            int page;
-            if (arguments.length == 1)
-                page = 1;
-            else if (Integer.parseInt(arguments[1]) > pages) {
-                channel.sendMessage("**:x: There aren't that many pages**");
+            if (p > pages) {
+                responder.setContent("**:x: There aren't that many pages**").send();
                 return;
-            } else
-                page = Integer.parseInt(arguments[1]);
+            }
 
-            MessageBuilder messageBuilder = new MessageBuilder();
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle("Tracks in the queue");
-            embedBuilder.setFooter("Page " + page + "/" + pages);
+            embedBuilder.setFooter("Page " + p + "/" + pages);
 
             StringBuilder content = new StringBuilder();
 
-            for (int i = 5 * (page - 1); i < 5 * page; i++) {
+            for (int i = (int) (5 * (p - 1)); i < 5 * p; i++) {
                 if (i >= queueSize)
                     break;
 
@@ -73,9 +77,7 @@ public class MusicQueueCommand extends MusicCommand {
             }
 
             embedBuilder.setDescription(content.toString());
-            messageBuilder.setEmbed(embedBuilder);
-
-            messageBuilder.send(channel);
+            responder.addEmbed(embedBuilder).send();
         }).start();
     }
 

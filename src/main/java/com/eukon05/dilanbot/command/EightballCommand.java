@@ -1,57 +1,54 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
-import com.eukon05.dilanbot.repository.CommandRepository;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.MessageBuilder;
+import lombok.RequiredArgsConstructor;
+import me.koply.kcommando.internal.OptionType;
+import me.koply.kcommando.internal.annotations.HandleSlash;
+import me.koply.kcommando.internal.annotations.Option;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.stereotype.Component;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 
-@Component
-public class EightballCommand extends Command {
+@RequiredArgsConstructor
+public class EightballCommand {
 
     private final Gson gson;
 
-    public EightballCommand(CommandRepository commandRepository, Gson gson) {
-        super("8ball", commandRepository);
-        this.gson = gson;
-    }
 
-    @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments) {
+    @HandleSlash(name = "8ball", desc = "Ask the 8ball a question!", options = @Option(name = "question", required = true, type = OptionType.STRING), global = true)
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
-            String value = fuseArguments(arguments);
-
-            ServerTextChannel channel = event.getServerTextChannel().get();
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            interaction.respondLater();
+            InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            String question = interaction.getArgumentStringValueByName("question").get();
 
             try {
-
                 HttpResponse<String> response = Unirest
-                        .get("https://8ball.delegator.com/magic/JSON/" + URLEncoder.encode(value, StandardCharsets.UTF_8))
+                        .get("https://8ball.delegator.com/magic/JSON/" + URLEncoder.encode(question, StandardCharsets.UTF_8))
                         .asString();
                 JsonObject responseJson = gson.fromJson(response.getBody(), JsonObject.class).get("magic").getAsJsonObject();
 
-                new MessageBuilder().setEmbed(new EmbedBuilder()
-                        .setTitle("The Magic 8-Ball says:")
-                        .setDescription(responseJson.get("answer").getAsString())
-                        .setFooter("Powered by Delegator")
-                ).send(channel);
+                responder.addEmbed(new EmbedBuilder()
+                                .setTitle("The Magic 8-Ball says:")
+                                .setDescription(responseJson.get("answer").getAsString())
+                                .setFooter("Powered by Delegator"))
+                        .send();
 
             } catch (JsonSyntaxException ex) {
-                channel.sendMessage("Something went wrong: Question contains invalid characters");
+                responder.setContent("Something went wrong: Question contains invalid characters").send();
                 ex.printStackTrace();
             } catch (Exception ex) {
-                channel.sendMessage("Something went wrong: " + ex.getMessage());
+                responder.setContent("Something went wrong: " + ex.getMessage()).send();
                 ex.printStackTrace();
             }
         }).start();

@@ -1,41 +1,43 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
+import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
-import com.eukon05.dilanbot.repository.CommandRepository;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.stereotype.Component;
+import me.koply.kcommando.internal.annotations.HandleSlash;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
-@Component
-public class MusicClearCommand extends MusicCommand {
+public class MusicClearCommand extends AbstractMusicCommand {
 
-    public MusicClearCommand(CommandRepository commandRepository) {
-        super("clear", commandRepository);
+    public MusicClearCommand(PlayerManager playerManager) {
+        super(playerManager);
     }
 
+    @HandleSlash(name = "clear", desc = "Clears the queue", global = true)
     @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
-            ServerTextChannel channel = event.getServerTextChannel().get();
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            interaction.respondLater();
+            ServerMusicManager manager = playerManager.getServerMusicManager(getServer(interaction).getId());
+            InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
 
-            if (!isBotOnVCCheck(me, event) || !isUserOnVCCheck(me, event))
+            if (!voiceCheck(interaction))
                 return;
 
             int queueSize = manager.getScheduler().getQueue().size();
 
             if (queueSize == 0) {
-                channel.sendMessage("**The queue is empty!**");
+                responder.setContent("**The queue is empty!**").send();
                 return;
             }
 
             manager.getScheduler().clearQueue();
 
             if (queueSize == 1)
-                channel.sendMessage("**Removed 1 track from the queue!**");
+                responder.setContent("**Removed 1 track from the queue!**").send();
             else
-                channel.sendMessage("**Removed " + queueSize + " tracks from the queue!**");
+                responder.setContent("**Removed " + queueSize + " tracks from the queue!**").send();
         }).start();
     }
 

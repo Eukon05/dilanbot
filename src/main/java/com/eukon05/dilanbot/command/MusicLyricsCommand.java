@@ -1,20 +1,19 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
+import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
-import com.eukon05.dilanbot.repository.CommandRepository;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import core.GLA;
 import genius.SongSearch;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.MessageBuilder;
+import me.koply.kcommando.internal.OptionType;
+import me.koply.kcommando.internal.annotations.HandleSlash;
+import me.koply.kcommando.internal.annotations.Option;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,38 +21,45 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
+import java.util.Optional;
 
-@Component
-public class MusicLyricsCommand extends MusicCommand {
+public class MusicLyricsCommand extends AbstractMusicCommand {
 
     private final GLA gla;
     private JsonArray wordList;
     private final Gson gson;
-    private final URL wordlistUrl;
+    private final URL wordListUrl;
 
-    public MusicLyricsCommand(GLA gla, Gson gson, @Value("${lyrics.wordlist.path}") String url, CommandRepository commandRepository) throws MalformedURLException {
-        super("lyrics", commandRepository);
+    public MusicLyricsCommand(GLA gla, Gson gson, String wordListUrl, PlayerManager manager) throws MalformedURLException {
+        super(manager);
         this.gla = gla;
         this.gson = gson;
-        this.wordlistUrl = new URL(url);
+        this.wordListUrl = new URL(wordListUrl);
     }
 
+    @HandleSlash(name = "lyrics",
+            desc = "Shows lyrics for specified or currently playing track",
+            options = @Option(name = "title", desc = "Title of the song to play", type = OptionType.STRING),
+            global = true
+    )
     @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
-            ServerTextChannel channel = event.getServerTextChannel().get();
-
-            String value = fuseArguments(arguments);
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            interaction.respondLater();
+            ServerMusicManager manager = playerManager.getServerMusicManager(getServer(interaction).getId());
+            InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            Optional<String> value = interaction.getArgumentStringValueByName("title");
 
             try {
-                wordList = gson.fromJson(new InputStreamReader(wordlistUrl.openStream()), JsonArray.class);
+                wordList = gson.fromJson(new InputStreamReader(wordListUrl.openStream()), JsonArray.class);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                channel.sendMessage("lyrics-wordlist.json file NOT FOUND!");
+                responder.setContent("lyrics-wordlist.json file NOT FOUND!").send();
 
             } catch (IOException e) {
                 e.printStackTrace();
-                channel.sendMessage("An I/O error has occurred: " + e.getMessage());
+                responder.setContent("An I/O error has occurred: " + e.getMessage()).send();
             }
 
             SongSearch search;
@@ -61,7 +67,7 @@ public class MusicLyricsCommand extends MusicCommand {
 
             if (value.isEmpty()) {
 
-                if (!comboCheck(me, event, manager))
+                if (!comboCheck(interaction, manager))
                     return;
 
                 try {
@@ -78,10 +84,10 @@ public class MusicLyricsCommand extends MusicCommand {
                 } catch (Exception e) {
 
                     if (e.getMessage() == null)
-                        channel.sendMessage("Couldn't find the song on Genius, sorry :(");
+                        responder.setContent("Couldn't find the song on Genius, sorry :(").send();
 
                     else
-                        channel.sendMessage("Something went wrong: " + e.getMessage());
+                        responder.setContent("Something went wrong: " + e.getMessage()).send();
 
                     e.printStackTrace();
 
@@ -91,16 +97,16 @@ public class MusicLyricsCommand extends MusicCommand {
 
                 try {
 
-                    search = gla.search(value);
+                    search = gla.search(value.get());
                     hit = search.getHits().getFirst();
 
                 } catch (Exception e) {
 
                     if (e.getMessage() == null)
-                        channel.sendMessage("Couldn't find the song on Genius, sorry :(");
+                        responder.setContent("Couldn't find the song on Genius, sorry :(").send();
 
                     else
-                        channel.sendMessage("Something went wrong: " + e.getMessage());
+                        responder.setContent("Something went wrong: " + e.getMessage()).send();
 
                     e.printStackTrace();
 
@@ -108,7 +114,6 @@ public class MusicLyricsCommand extends MusicCommand {
 
             }
 
-            MessageBuilder builder = new MessageBuilder();
             EmbedBuilder embedBuilder = new EmbedBuilder();
 
             embedBuilder.setAuthor(hit.getArtist().getName());
@@ -117,9 +122,7 @@ public class MusicLyricsCommand extends MusicCommand {
             embedBuilder.setImage(hit.getImageUrl());
             embedBuilder.setFooter("**Powered by Genius.com**");
 
-            builder.setEmbed(embedBuilder);
-
-            builder.send(channel);
+            responder.addEmbed(embedBuilder).send();
         }).start();
     }
 

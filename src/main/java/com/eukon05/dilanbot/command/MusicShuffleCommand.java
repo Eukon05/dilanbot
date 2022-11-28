@@ -1,40 +1,44 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
+import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
-import com.eukon05.dilanbot.repository.CommandRepository;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.stereotype.Component;
+import me.koply.kcommando.internal.annotations.HandleSlash;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
 import java.util.Collections;
 
-@Component
-public class MusicShuffleCommand extends MusicCommand {
+public class MusicShuffleCommand extends AbstractMusicCommand {
 
-    public MusicShuffleCommand(CommandRepository commandRepository) {
-        super("shuffle", commandRepository);
+    public MusicShuffleCommand(PlayerManager playerManager) {
+        super(playerManager);
     }
 
+    @HandleSlash(name = "shuffle", desc = "Shuffles the queue randomly", global = true)
     @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
-            ServerTextChannel channel = event.getServerTextChannel().get();
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            interaction.respondLater();
+            Server server = getServer(interaction);
+            ServerMusicManager manager = playerManager.getServerMusicManager(server.getId());
+            InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
 
-            if (!isBotOnVCCheck(me, event) || !isUserOnVCCheck(me, event))
+            if (!voiceCheck(interaction))
                 return;
 
             int queueSize = manager.getScheduler().getQueue().size();
 
             if (queueSize == 0) {
-                channel.sendMessage("**The queue is empty!**");
+                responder.setContent("**The queue is empty!**").send();
                 return;
             }
 
             Collections.shuffle(manager.getScheduler().getQueue());
 
-            channel.sendMessage("**:twisted_rightwards_arrows: Shuffled the queue**");
+            responder.setContent("**:twisted_rightwards_arrows: Shuffled the queue**").send();
         }).start();
     }
 
