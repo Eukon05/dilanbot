@@ -6,7 +6,6 @@ import com.eukon05.dilanbot.listener.ServerJoinListenerImpl;
 import com.eukon05.dilanbot.listener.VoiceChannelLeaveListener;
 import com.google.gson.Gson;
 import core.GLA;
-import kong.unirest.Unirest;
 import me.koply.kcommando.KCommando;
 import me.koply.kcommando.integration.impl.javacord.JavacordIntegration;
 import org.javacord.api.DiscordApi;
@@ -30,9 +29,6 @@ public class DilanbotApplication {
         } else {
             System.out.println("Custom lyrics wordlist URL detected");
         }
-
-        Unirest.config().followRedirects(false);
-
 
         GLA gla = new GLA();
         Gson gson = new Gson();

@@ -1,7 +1,7 @@
 package com.eukon05.dilanbot.command;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,6 @@ import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -29,17 +28,19 @@ public class RedditCommand implements Command {
             SlashCommandInteraction interaction = event.getSlashCommandInteraction();
             InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
             interaction.respondLater();
+
+            //We don't have to check if the optional is empty, because "subreddit" is a required command parameter
             String value = interaction.getArgumentStringValueByName("subreddit").get();
 
             try {
-                HttpResponse<String> init = Unirest.get("https://www.reddit.com/r/" + URLEncoder.encode(value, StandardCharsets.UTF_8) + "/random.json").asString();
+                HttpResponse<String> init = Unirest.get("https://www.reddit.com/r/" + URLEncoder.encode(value, StandardCharsets.UTF_8) + "/randomrising.json?limit=1").asString();
 
                 switch (init.getStatus()) {
-                    case 302 -> {
-                        if (!init.getBody().isBlank()) {
-                            responder.setContent("This subreddit is private").send();
-                            return;
-                        }
+                    case 200 -> {
+                    }
+                    case 403 -> {
+                        responder.setContent("This subreddit is private").send();
+                        return;
                     }
                     case 404 -> {
                         responder.setContent("This subreddit doesn't exist").send();
@@ -51,25 +52,28 @@ public class RedditCommand implements Command {
                     }
                 }
 
-                URL url = new URL(init.getHeaders().get("location").get(0));
+                RedditSubmission submission = gson.fromJson(gson.fromJson(init.getBody(), JsonObject.class)
+                        .get("data").getAsJsonObject()
+                        .get("children").getAsJsonArray()
+                        .get(0).getAsJsonObject()
+                        .get("data").getAsJsonObject(), RedditSubmission.class);
 
-                String[] path = url.getPath().split("/");
-
-                path[path.length - 2] = URLEncoder.encode(path[path.length - 2], StandardCharsets.UTF_8);
-
-                HttpResponse<String> response = Unirest.get("https://www.reddit.com/" + String.join("/", path)).asString();
-
-                RedditSubmission submission = gson.fromJson(gson.fromJson(response.getBody(), JsonArray.class).get(0).getAsJsonObject().get("data").getAsJsonObject().get("children").getAsJsonArray().get(0).getAsJsonObject().get("data").getAsJsonObject(), RedditSubmission.class);
-
-
-                EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(submission.author()).setTitle(submission.title()).setDescription(submission.selftext()).setUrl("https://reddit.com" + submission.permalink()).setFooter("A random post from " + submission.subreddit_name_prefixed());
+                EmbedBuilder embedBuilder = new EmbedBuilder()
+                        .setAuthor(submission.author())
+                        .setTitle(submission.title())
+                        .setDescription(submission.selftext())
+                        .setUrl("https://reddit.com" + submission.permalink())
+                        .setFooter("A random post from " + submission.subreddit_name_prefixed());
 
                 if (submission.url() != null && !submission.is_video()) embedBuilder.setImage(submission.url());
 
                 responder.addEmbed(embedBuilder).send();
 
                 if (submission.is_video())
-                    interaction.createFollowupMessageBuilder().addEmbed(new EmbedBuilder().setDescription("The above Reddit post contains a video, visit it in your browser to see it!")).send();
+                    interaction.createFollowupMessageBuilder()
+                            .addEmbed(new EmbedBuilder()
+                                    .setDescription("The above Reddit post contains a video, visit it in your browser to see it!"))
+                            .send();
             } catch (Exception ex) {
                 responder.setContent("An unexpected backend error has occurred: " + ex.getMessage()).send();
                 ex.printStackTrace();
