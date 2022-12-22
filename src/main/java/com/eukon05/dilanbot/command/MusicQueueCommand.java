@@ -1,7 +1,10 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import me.koply.kcommando.internal.OptionType;
 import me.koply.kcommando.internal.annotations.HandleSlash;
 import me.koply.kcommando.internal.annotations.Option;
@@ -10,8 +13,12 @@ import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
+import java.util.ArrayList;
+
 public class MusicQueueCommand extends AbstractMusicCommand {
 
+    private static final String QUEUE_LISTING = "%d. [%s](%s) \n";
+    private static final String QUEUE_PAGE = "Page %d/%d";
 
     public MusicQueueCommand(PlayerManager playerManager) {
         super(playerManager);
@@ -28,16 +35,18 @@ public class MusicQueueCommand extends AbstractMusicCommand {
             interaction.respondLater();
             ServerMusicManager manager = playerManager.getServerMusicManager(getServer(interaction).getId());
             InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
+            ArrayList<AudioTrack> queue = manager.getScheduler().getQueue();
             long p = interaction.getArgumentLongValueByName("page").orElse(1L);
 
             if (!voiceCheck(interaction))
                 return;
 
-            int queueSize = manager.getScheduler().getQueue().size();
+            int queueSize = queue.size();
 
             if (queueSize == 0) {
-                responder.setContent("**The queue is empty!**").send();
+                responder.setContent(MessageUtils.getMessage("QUEUE_EMPTY", localeCode)).send();
                 return;
             }
 
@@ -51,29 +60,23 @@ public class MusicQueueCommand extends AbstractMusicCommand {
 
 
             if (p > pages) {
-                responder.setContent("**:x: There aren't that many pages**").send();
+                responder.setContent(MessageUtils.getMessage("QUEUE_LESS_PAGES", localeCode)).send();
                 return;
             }
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
-            embedBuilder.setTitle("Tracks in the queue");
-            embedBuilder.setFooter("Page " + p + "/" + pages);
+            embedBuilder.setTitle(MessageUtils.getMessage("QUEUE_TRACKS", localeCode));
+            embedBuilder.setFooter(String.format(QUEUE_PAGE, p, pages));
 
             StringBuilder content = new StringBuilder();
 
+            AudioTrackInfo trackInfo;
             for (int i = (int) (5 * (p - 1)); i < 5 * p; i++) {
                 if (i >= queueSize)
                     break;
 
-                content.append(i + 1)
-                        .append(".")
-                        .append(" ")
-                        .append("[")
-                        .append(manager.getScheduler().getQueue().get(i).getInfo().title)
-                        .append("](")
-                        .append(manager.getScheduler().getQueue().get(i).getInfo().uri)
-                        .append(")")
-                        .append("\n");
+                trackInfo = queue.get(i).getInfo();
+                content.append(String.format(QUEUE_LISTING, i + 1, trackInfo.title, trackInfo.uri));
             }
 
             embedBuilder.setDescription(content.toString());

@@ -1,5 +1,6 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import me.koply.kcommando.internal.annotations.HandleSlash;
@@ -21,6 +22,7 @@ public class MusicLoopCommand extends AbstractMusicCommand {
             interaction.respondLater();
             ServerMusicManager manager = playerManager.getServerMusicManager(getServer(interaction).getId());
             InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
             if (!comboCheck(interaction, manager))
                 return;
@@ -28,11 +30,11 @@ public class MusicLoopCommand extends AbstractMusicCommand {
             if (manager.getScheduler().getLoopTrack() == null) {
                 manager.getScheduler().setLoopTrack(manager.getPlayer().getPlayingTrack());
                 responder
-                        .setContent("**:repeat_one: Looping " + manager.getScheduler().getLoopTrack().getInfo().title + "**")
+                        .setContent(String.format(MessageUtils.getMessage("LOOP_ENABLED", localeCode), manager.getScheduler().getLoopTrack().getInfo().title))
                         .send();
             } else {
                 manager.getScheduler().setLoopTrack(null);
-                responder.setContent("**:warning: Loop disabled!**").send();
+                responder.setContent(MessageUtils.getMessage("LOOP_DISABLED", localeCode)).send();
             }
         }).start();
     }

@@ -1,5 +1,6 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import com.google.gson.Gson;
@@ -50,16 +51,17 @@ public class MusicLyricsCommand extends AbstractMusicCommand {
             ServerMusicManager manager = playerManager.getServerMusicManager(getServer(interaction).getId());
             InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
             Optional<String> value = interaction.getArgumentStringValueByName("title");
+            String localeCode = interaction.getLocale().getLocaleCode();
 
             try {
                 wordList = gson.fromJson(new InputStreamReader(wordListUrl.openStream()), JsonArray.class);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                responder.setContent("lyrics-wordlist.json file NOT FOUND!").send();
+                responder.setContent(MessageUtils.getMessage("WORDLIST_NOT_FOUND", localeCode)).send();
 
             } catch (IOException e) {
                 e.printStackTrace();
-                responder.setContent("An I/O error has occurred: " + e.getMessage()).send();
+                responder.setContent(String.format(MessageUtils.getMessage("IO_ERROR", localeCode), e.getMessage())).send();
             }
 
             SongSearch search;
@@ -84,10 +86,10 @@ public class MusicLyricsCommand extends AbstractMusicCommand {
                 } catch (Exception e) {
 
                     if (e.getMessage() == null)
-                        responder.setContent("Couldn't find the song on Genius, sorry :(").send();
+                        responder.setContent(MessageUtils.getMessage("GENIUS_NOT_FOUND", localeCode)).send();
 
                     else
-                        responder.setContent("Something went wrong: " + e.getMessage()).send();
+                        responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), e.getMessage())).send();
 
                     e.printStackTrace();
 
@@ -103,10 +105,10 @@ public class MusicLyricsCommand extends AbstractMusicCommand {
                 } catch (Exception e) {
 
                     if (e.getMessage() == null)
-                        responder.setContent("Couldn't find the song on Genius, sorry :(").send();
+                        responder.setContent(MessageUtils.getMessage("GENIUS_NOT_FOUND", localeCode)).send();
 
                     else
-                        responder.setContent("Something went wrong: " + e.getMessage()).send();
+                        responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), e.getMessage())).send();
 
                     e.printStackTrace();
 
@@ -120,7 +122,7 @@ public class MusicLyricsCommand extends AbstractMusicCommand {
             embedBuilder.setTitle(hit.getTitle());
             embedBuilder.setDescription(hit.fetchLyrics());
             embedBuilder.setImage(hit.getImageUrl());
-            embedBuilder.setFooter("**Powered by Genius.com**");
+            embedBuilder.setFooter(MessageUtils.getMessage("GENIUS_FOOTER", localeCode));
 
             responder.addEmbed(embedBuilder).send();
         }).start();

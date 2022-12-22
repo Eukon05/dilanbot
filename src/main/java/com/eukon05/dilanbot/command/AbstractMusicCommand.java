@@ -1,5 +1,6 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import lombok.AllArgsConstructor;
@@ -21,14 +22,16 @@ public abstract class AbstractMusicCommand implements Command {
         Optional<ServerVoiceChannel> myVc = getSelf(interaction).getConnectedVoiceChannel(server);
         InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
 
+        String localeCode = interaction.getLocale().getLocaleCode();
+
         if (myVc.isEmpty()) {
-            responder.setContent("**:x: I'm not connected to a voice channel!**").send();
+            responder.setContent(MessageUtils.getMessage("VC_BOT_NOT_CONNECTED", localeCode)).send();
             return false;
         } else if (vc.isEmpty()) {
-            responder.setContent("**:x: You're not connected to a voice channel!**").send();
+            responder.setContent(MessageUtils.getMessage("VC_USER_NOT_CONNECTED", localeCode)).send();
             return false;
         } else if (!vc.get().equals(myVc.get())) {
-            responder.setContent("**:x: You have to be in the same voice channel as me!**").send();
+            responder.setContent(MessageUtils.getMessage("VC_DIFFERENT_CHANNELS", localeCode)).send();
             return false;
         } else {
             return true;
@@ -36,8 +39,9 @@ public abstract class AbstractMusicCommand implements Command {
     }
 
     protected boolean isMusicPlayingCheck(SlashCommandInteraction interaction, ServerMusicManager manager) {
+        String localeCode = interaction.getLocale().getLocaleCode();
         if (manager.getPlayer().getPlayingTrack() == null) {
-            interaction.createFollowupMessageBuilder().setContent("**:x: Nothing is playing right now**").send();
+            interaction.createFollowupMessageBuilder().setContent(MessageUtils.getMessage("NOT_PLAYING", localeCode)).send();
             return false;
         } else
             return true;
@@ -49,9 +53,10 @@ public abstract class AbstractMusicCommand implements Command {
 
     @Override
     public Server getServer(SlashCommandInteraction interaction) {
+        String localeCode = interaction.getLocale().getLocaleCode();
         Optional<Server> serverOpt = interaction.getServer();
         if (serverOpt.isEmpty()) {
-            interaction.createFollowupMessageBuilder().setContent("Music commands cannot be used in DMs!").send();
+            interaction.createFollowupMessageBuilder().setContent(MessageUtils.getMessage("DM", localeCode)).send();
             Thread.currentThread().stop();
             return null;
         }

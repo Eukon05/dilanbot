@@ -1,5 +1,6 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import me.koply.kcommando.internal.OptionType;
@@ -34,6 +35,7 @@ public class MusicPlayCommand extends AbstractMusicCommand {
             InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
             Optional<String> valueOpt = interaction.getArgumentStringValueByName("title");
             User user = interaction.getUser();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
             if (valueOpt.isEmpty()) {
 
@@ -42,9 +44,9 @@ public class MusicPlayCommand extends AbstractMusicCommand {
 
                 if (manager.getPlayer().isPaused()) {
                     manager.getPlayer().setPaused(false);
-                    responder.setContent("**:arrow_forward: Music resumed**").send();
+                    responder.setContent(MessageUtils.getMessage("RESUMED", localeCode)).send();
                 } else
-                    responder.setContent("**:x: The track isn't paused!**").send();
+                    responder.setContent(MessageUtils.getMessage("NOT_PAUSED", localeCode)).send();
 
                 return;
             }
@@ -58,7 +60,7 @@ public class MusicPlayCommand extends AbstractMusicCommand {
             if (getSelf(interaction).getConnectedVoiceChannel(server).isEmpty()) {
 
                 if (user.getConnectedVoiceChannel(server).isEmpty()) {
-                    responder.setContent("**:x: You have to be connected to a voice channel!**").send();
+                    responder.setContent(MessageUtils.getMessage("VC_USER_NOT_CONNECTED", localeCode)).send();
                     return;
                 }
 
@@ -68,7 +70,7 @@ public class MusicPlayCommand extends AbstractMusicCommand {
                     playerManager.addServerAudioConnection(server.getId(), audioConnection);
 
                 }).exceptionally(e -> {
-                    responder.setContent("Something went wrong! " + e.getMessage()).send();
+                    responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), e.getMessage())).send();
                     e.printStackTrace();
                     return null;
                 });

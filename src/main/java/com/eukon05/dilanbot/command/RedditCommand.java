@@ -1,5 +1,6 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import kong.unirest.HttpResponse;
@@ -21,6 +22,8 @@ public class RedditCommand implements Command {
 
     private final Gson gson;
 
+    private static final String REDDIT_API_URL = "https://www.reddit.com/r/%s/randomrising.json?limit=1";
+
     @Override
     @HandleSlash(name = "reddit", desc = "Get a random post from a specified subreddit", options = @Option(name = "subreddit", required = true, type = OptionType.STRING), global = true)
     public void run(SlashCommandCreateEvent event) {
@@ -31,51 +34,52 @@ public class RedditCommand implements Command {
 
             //We don't have to check if the optional is empty, because "subreddit" is a required command parameter
             String value = interaction.getArgumentStringValueByName("subreddit").get();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
             try {
-                HttpResponse<String> init = Unirest.get("https://www.reddit.com/r/" + URLEncoder.encode(value, StandardCharsets.UTF_8) + "/randomrising.json?limit=1").asString();
+                HttpResponse<String> init = Unirest.get(String.format(REDDIT_API_URL, URLEncoder.encode(value, StandardCharsets.UTF_8))).asString();
 
                 switch (init.getStatus()) {
-                    case 200 -> {
+                    case 200: {
+                        RedditSubmission submission = gson.fromJson(gson.fromJson(init.getBody(), JsonObject.class)
+                                .get("data").getAsJsonObject()
+                                .get("children").getAsJsonArray()
+                                .get(0).getAsJsonObject()
+                                .get("data").getAsJsonObject(), RedditSubmission.class);
+
+                        EmbedBuilder embedBuilder = new EmbedBuilder()
+                                .setAuthor(submission.author())
+                                .setTitle(submission.title())
+                                .setDescription(submission.selftext())
+                                .setUrl("https://reddit.com" + submission.permalink())
+                                .setFooter(String.format(MessageUtils.getMessage("REDDIT_FOOTER", localeCode), submission.subreddit_name_prefixed()));
+
+                        if (submission.url() != null && !submission.is_video()) embedBuilder.setImage(submission.url());
+
+                        responder.addEmbed(embedBuilder).send();
+
+                        if (submission.is_video())
+                            interaction.createFollowupMessageBuilder()
+                                    .addEmbed(new EmbedBuilder()
+                                            .setDescription(MessageUtils.getMessage("SUBMISSION_HAS_VIDEO", localeCode)))
+                                    .send();
+                        break;
                     }
-                    case 403 -> {
-                        responder.setContent("This subreddit is private").send();
-                        return;
+                    case 403: {
+                        responder.setContent(MessageUtils.getMessage("SUBREDDIT_PRIVATE", localeCode)).send();
+                        break;
                     }
-                    case 404 -> {
-                        responder.setContent("This subreddit doesn't exist").send();
-                        return;
+                    case 404: {
+                        responder.setContent(MessageUtils.getMessage("SUBREDDIT_NOT_FOUND", localeCode)).send();
+                        break;
                     }
-                    default -> {
-                        responder.setContent("An unexpected Reddit API error has occurred: " + init.getBody()).send();
-                        return;
+                    default: {
+                        responder.setContent(String.format(MessageUtils.getMessage("REDDIT_ERROR", localeCode), init.getBody())).send();
+                        break;
                     }
                 }
-
-                RedditSubmission submission = gson.fromJson(gson.fromJson(init.getBody(), JsonObject.class)
-                        .get("data").getAsJsonObject()
-                        .get("children").getAsJsonArray()
-                        .get(0).getAsJsonObject()
-                        .get("data").getAsJsonObject(), RedditSubmission.class);
-
-                EmbedBuilder embedBuilder = new EmbedBuilder()
-                        .setAuthor(submission.author())
-                        .setTitle(submission.title())
-                        .setDescription(submission.selftext())
-                        .setUrl("https://reddit.com" + submission.permalink())
-                        .setFooter("A random post from " + submission.subreddit_name_prefixed());
-
-                if (submission.url() != null && !submission.is_video()) embedBuilder.setImage(submission.url());
-
-                responder.addEmbed(embedBuilder).send();
-
-                if (submission.is_video())
-                    interaction.createFollowupMessageBuilder()
-                            .addEmbed(new EmbedBuilder()
-                                    .setDescription("The above Reddit post contains a video, visit it in your browser to see it!"))
-                            .send();
             } catch (Exception ex) {
-                responder.setContent("An unexpected backend error has occurred: " + ex.getMessage()).send();
+                responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), ex.getMessage())).send();
                 ex.printStackTrace();
             }
         }).start();

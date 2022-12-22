@@ -1,5 +1,6 @@
 package com.eukon05.dilanbot.listener;
 
+import com.eukon05.dilanbot.MessageUtils;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.server.ServerJoinEvent;
@@ -15,9 +16,10 @@ public class ServerJoinListenerImpl implements ServerJoinListener {
 
                 MessageBuilder msg = new MessageBuilder();
                 EmbedBuilder emb = new EmbedBuilder();
+                String localeCode = event.getServer().getPreferredLocale().toLanguageTag();
 
-                emb.setTitle("Thanks for adding me!");
-                emb.setDescription("If you like this bot, please give us a star on [GitHub](https://github.com/Eukon05/dilanbot)");
+                emb.setTitle(MessageUtils.getMessage("JOIN_TITLE", localeCode));
+                emb.setDescription(MessageUtils.getMessage("JOIN_DESC", localeCode));
                 emb.setThumbnail(event.getApi().getYourself().getAvatar());
 
                 msg.setEmbed(emb);

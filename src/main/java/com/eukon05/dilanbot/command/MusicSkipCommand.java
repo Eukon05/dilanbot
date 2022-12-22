@@ -1,5 +1,6 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -9,6 +10,8 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
+
+import static com.eukon05.dilanbot.MessageUtils.MARKDOWN_URL;
 
 public class MusicSkipCommand extends AbstractMusicCommand {
 
@@ -25,17 +28,18 @@ public class MusicSkipCommand extends AbstractMusicCommand {
             Server server = getServer(interaction);
             ServerMusicManager manager = playerManager.getServerMusicManager(server.getId());
             InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
             if (!comboCheck(interaction, manager))
                 return;
 
             if (manager.getScheduler().getLoopTrack() != null) {
                 manager.getScheduler().setLoopTrack(null);
-                responder.setContent("**:warning: Loop disabled!**").send();
+                responder.setContent(MessageUtils.getMessage("LOOP_DISABLED", localeCode)).send();
             }
 
             manager.getScheduler().nextTrack();
-            responder.setContent("**:fast_forward: Skipped**").send();
+            responder.setContent(MessageUtils.getMessage("SKIPPED", localeCode)).send();
 
             AudioTrack track = manager.getPlayer().getPlayingTrack();
 
@@ -43,8 +47,8 @@ public class MusicSkipCommand extends AbstractMusicCommand {
                 return;
 
             interaction.createFollowupMessageBuilder().addEmbed(new EmbedBuilder()
-                            .setTitle("Now Playing")
-                            .setDescription("[" + track.getInfo().title + "](" + track.getInfo().uri + ")")
+                            .setTitle(MessageUtils.getMessage("NP", localeCode))
+                            .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri))
                             .setThumbnail(track.getInfo().artworkUrl))
                     .send();
         }).start();

@@ -1,5 +1,6 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import me.koply.kcommando.internal.annotations.HandleSlash;
@@ -20,6 +21,7 @@ public class MusicStopCommand extends AbstractMusicCommand {
             SlashCommandInteraction interaction = event.getSlashCommandInteraction();
             interaction.respondLater();
             ServerMusicManager manager = playerManager.getServerMusicManager(getServer(interaction).getId());
+            String localeCode = interaction.getLocale().getLocaleCode();
 
             if (!comboCheck(interaction, manager))
                 return;
@@ -28,7 +30,7 @@ public class MusicStopCommand extends AbstractMusicCommand {
             manager.getScheduler().setLoopTrack(null);
             manager.getPlayer().setPaused(false);
             manager.getScheduler().clearQueue();
-            interaction.createFollowupMessageBuilder().setContent("**:no_entry: Music stopped**").send();
+            interaction.createFollowupMessageBuilder().setContent(MessageUtils.getMessage("STOPPED", localeCode)).send();
         }).start();
     }
 

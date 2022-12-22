@@ -1,7 +1,9 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import me.koply.kcommando.internal.annotations.HandleSlash;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteraction;
@@ -21,17 +23,20 @@ public class MusicPauseCommand extends AbstractMusicCommand {
             interaction.respondLater();
             ServerMusicManager manager = playerManager.getServerMusicManager(getServer(interaction).getId());
             InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            String localeCode = interaction.getLocale().getLocaleCode();
+
+            AudioPlayer player = manager.getPlayer();
 
             if (!comboCheck(interaction, manager))
                 return;
 
-            if (manager.getPlayer().isPaused()) {
-                responder.setContent("**:x: The player is already paused!**").send();
+            if (player.isPaused()) {
+                responder.setContent(MessageUtils.getMessage("IS_PAUSED", localeCode)).send();
                 return;
             }
 
-            manager.getPlayer().setPaused(true);
-            responder.setContent("**:pause_button: Music paused**").send();
+            player.setPaused(true);
+            responder.setContent(MessageUtils.getMessage("PAUSED", localeCode)).send();
         }).start();
     }
 

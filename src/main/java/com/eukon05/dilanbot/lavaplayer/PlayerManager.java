@@ -1,5 +1,6 @@
 package com.eukon05.dilanbot.lavaplayer;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -7,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.audio.AudioConnection;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -14,6 +16,8 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
 import java.util.HashMap;
+
+import static com.eukon05.dilanbot.MessageUtils.MARKDOWN_URL;
 
 public class PlayerManager {
 
@@ -52,20 +56,21 @@ public class PlayerManager {
     public void loadAndPlay(SlashCommandInteraction interaction, String trackUrl) {
         ServerMusicManager manager = getServerMusicManager(interaction.getServer().get().getId());
         InteractionFollowupMessageBuilder builder = interaction.createFollowupMessageBuilder();
+        String localeCode = interaction.getLocale().getLocaleCode();
 
         audioPlayerManager.loadItemOrdered(manager, trackUrl, new AudioLoadResultHandler() {
-            String action = "Playing";
+            String action = MessageUtils.getMessage("PLAYING", localeCode);
 
             @Override
             public void trackLoaded(AudioTrack track) {
                 if (manager.getPlayer().getPlayingTrack() != null)
-                    action = "Queued";
+                    action = MessageUtils.getMessage("QUEUED", localeCode);
 
                 manager.getScheduler().queue(track);
 
                 builder.addEmbed(new EmbedBuilder()
                                 .setTitle(action)
-                                .setDescription("[" + track.getInfo().title + "](" + track.getInfo().uri + ")")
+                                .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri))
                                 .setThumbnail(track.getInfo().artworkUrl))
                         .send();
             }
@@ -73,7 +78,7 @@ public class PlayerManager {
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
                 if (manager.getPlayer().getPlayingTrack() != null)
-                    action = "Queued";
+                    action = MessageUtils.getMessage("QUEUED", localeCode);
 
                 if (!playlist.isSearchResult()) {
 
@@ -82,28 +87,30 @@ public class PlayerManager {
                     }
 
                     builder.addEmbed(new EmbedBuilder()
-                                    .setDescription("*:notes: " + action + " playlist \"" + playlist.getName() + "\"*"))
+                                    .setTitle(action)
+                                    .setDescription(playlist.getName()))
                             .send();
                 } else {
 
                     manager.getScheduler().queue(playlist.getTracks().get(0));
 
+                    AudioTrackInfo info = playlist.getTracks().get(0).getInfo();
                     builder.addEmbed(new EmbedBuilder()
                                     .setTitle(action)
-                                    .setDescription("[" + playlist.getTracks().get(0).getInfo().title + "](" + playlist.getTracks().get(0).getInfo().uri + ")")
-                                    .setThumbnail(playlist.getTracks().get(0).getInfo().artworkUrl))
+                                    .setDescription(String.format(MARKDOWN_URL, info.title, info.uri))
+                                    .setThumbnail(info.artworkUrl))
                             .send();
                 }
             }
 
             @Override
             public void noMatches() {
-                builder.setContent("No matching tracks found :c").send();
+                builder.setContent(MessageUtils.getMessage("NO_MATCH", localeCode)).send();
             }
 
             @Override
             public void loadFailed(FriendlyException e) {
-                builder.setContent("Something went wrong! " + e.getMessage()).send();
+                builder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), e.getMessage())).send();
                 e.printStackTrace();
             }
         });

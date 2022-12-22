@@ -1,8 +1,8 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +23,8 @@ public class EightballCommand {
 
     private final Gson gson;
 
+    private static final String EIGHTBALL_API_URL = "https://eightballapi.com/api?question=%s";
+
 
     @HandleSlash(name = "8ball", desc = "Ask the 8ball a question!", options = @Option(name = "question", required = true, type = OptionType.STRING), global = true)
     public void run(SlashCommandCreateEvent event) {
@@ -31,24 +33,23 @@ public class EightballCommand {
             interaction.respondLater();
             InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
             String question = interaction.getArgumentStringValueByName("question").get();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
             try {
                 HttpResponse<String> response = Unirest
-                        .get("https://8ball.delegator.com/magic/JSON/" + URLEncoder.encode(question, StandardCharsets.UTF_8))
+                        .get(String.format(EIGHTBALL_API_URL, URLEncoder.encode(question, StandardCharsets.UTF_8)))
                         .asString();
-                JsonObject responseJson = gson.fromJson(response.getBody(), JsonObject.class).get("magic").getAsJsonObject();
+                String apiResponse = gson.fromJson(response.getBody(), JsonObject.class).get("reading").getAsString();
 
                 responder.addEmbed(new EmbedBuilder()
-                                .setTitle("The Magic 8-Ball says:")
-                                .setDescription(responseJson.get("answer").getAsString())
-                                .setFooter("Powered by Delegator"))
+                                .setAuthor(interaction.getUser())
+                                .setTitle(question)
+                                .setDescription(apiResponse)
+                                .setFooter(MessageUtils.getMessage("8BALL_FOOTER", localeCode)))
                         .send();
 
-            } catch (JsonSyntaxException ex) {
-                responder.setContent("Something went wrong: Question contains invalid characters").send();
-                ex.printStackTrace();
             } catch (Exception ex) {
-                responder.setContent("Something went wrong: " + ex.getMessage()).send();
+                responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), ex.getMessage())).send();
                 ex.printStackTrace();
             }
         }).start();

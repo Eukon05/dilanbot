@@ -1,13 +1,16 @@
 package com.eukon05.dilanbot.command;
 
+import com.eukon05.dilanbot.MessageUtils;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.koply.kcommando.internal.annotations.HandleSlash;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 public class MusicShuffleCommand extends AbstractMusicCommand {
@@ -25,20 +28,21 @@ public class MusicShuffleCommand extends AbstractMusicCommand {
             Server server = getServer(interaction);
             ServerMusicManager manager = playerManager.getServerMusicManager(server.getId());
             InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            String localeCode = interaction.getLocale().getLocaleCode();
+
+            ArrayList<AudioTrack> queue = manager.getScheduler().getQueue();
 
             if (!voiceCheck(interaction))
                 return;
 
-            int queueSize = manager.getScheduler().getQueue().size();
-
-            if (queueSize == 0) {
-                responder.setContent("**The queue is empty!**").send();
+            if (queue.isEmpty()) {
+                responder.setContent(MessageUtils.getMessage("QUEUE_EMPTY", localeCode)).send();
                 return;
             }
 
-            Collections.shuffle(manager.getScheduler().getQueue());
+            Collections.shuffle(queue);
 
-            responder.setContent("**:twisted_rightwards_arrows: Shuffled the queue**").send();
+            responder.setContent(MessageUtils.getMessage("QUEUE_SHUFFLED", localeCode)).send();
         }).start();
     }
 
