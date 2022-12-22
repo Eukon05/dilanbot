@@ -1,24 +1,20 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
-import com.eukon05.dilanbot.repository.CommandRepository;
-import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
 
-public abstract class Command {
+public interface Command {
 
-    protected Command(String prefix, CommandRepository commandRepository){
-        commandRepository.addCommand(prefix, this);
+    void run(SlashCommandCreateEvent event);
+
+    default User getSelf(SlashCommandInteraction interaction) {
+        return interaction.getApi().getYourself();
     }
 
-    public abstract void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments);
-
-    protected String fuseArguments(String[] arguments) {
-        StringBuilder value = new StringBuilder();
-
-        for (int i = 1; i < arguments.length; i++) {
-            value.append(arguments[i]).append(" ");
-        }
-
-        return value.toString().trim();
+    default Server getServer(SlashCommandInteraction interaction) {
+        return interaction.getServer().get();
     }
+
 }

@@ -1,36 +1,43 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
+import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
-import com.eukon05.dilanbot.repository.CommandRepository;
-import org.javacord.api.entity.channel.ServerTextChannel;
+import me.koply.kcommando.internal.annotations.HandleSlash;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.stereotype.Component;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
 
-@Component
-public class DisconnectCommand extends MusicCommand {
-    public DisconnectCommand(CommandRepository commandRepository) {
-        super("disconnect", commandRepository);
+public class DisconnectCommand extends AbstractMusicCommand {
+
+    public DisconnectCommand(PlayerManager playerManager) {
+        super(playerManager);
     }
 
+    @HandleSlash(name = "disconnect", desc = "Disconnects the bot from a voice channel (if it's connected to one)", global = true)
     @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            interaction.respondLater();
+            ServerMusicManager manager = playerManager.getServerMusicManager(getServer(interaction).getId());
+            String localeCode = interaction.getLocale().getLocaleCode();
 
-            ServerTextChannel channel = event.getServerTextChannel().get();
+            Server server = getServer(interaction);
+            User me = getSelf(interaction);
 
-            if (!isBotOnVCCheck(me, event) || !isUserOnVCCheck(me, event))
+            if (!voiceCheck(interaction))
                 return;
 
             //Here the track is stopped and the queue is cleared, I might change this behaviour in the future based on user feedback
             manager.getPlayer().stopTrack();
             manager.getScheduler().clearQueue();
 
-            playerManager.getServerAudioConnection(discordServer.getId()).close();
-            playerManager.removeServerAudioConnection(discordServer.getId());
+            playerManager.getServerAudioConnection(server.getId()).close();
+            playerManager.removeServerAudioConnection(server.getId());
 
-            channel.sendMessage("**Disconnected from " + me.getConnectedVoiceChannel(event.getServer().get()).get().getName() + " **");
+            interaction.createImmediateResponder().setContent(String.format(MessageUtils.getMessage("DISCONNECT", localeCode), me.getConnectedVoiceChannel(server).get().getName())).respond();
 
         }).start();
     }

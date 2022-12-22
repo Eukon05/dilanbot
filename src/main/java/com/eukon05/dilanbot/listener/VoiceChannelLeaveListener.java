@@ -7,10 +7,8 @@ import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberLeaveEvent;
 import org.javacord.api.listener.channel.server.voice.ServerVoiceChannelMemberLeaveListener;
-import org.springframework.stereotype.Component;
 
 
-@Component
 @RequiredArgsConstructor
 public class VoiceChannelLeaveListener implements ServerVoiceChannelMemberLeaveListener {
 

@@ -1,107 +1,92 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
-import com.eukon05.dilanbot.domain.RedditSubmission;
-import com.eukon05.dilanbot.repository.CommandRepository;
+import com.eukon05.dilanbot.MessageUtils;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.MessageBuilder;
+import lombok.RequiredArgsConstructor;
+import me.koply.kcommando.internal.OptionType;
+import me.koply.kcommando.internal.annotations.HandleSlash;
+import me.koply.kcommando.internal.annotations.Option;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.stereotype.Component;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-@Component
-public class RedditCommand extends Command {
+@RequiredArgsConstructor
+public class RedditCommand implements Command {
 
     private final Gson gson;
 
-    public RedditCommand(Gson gson, CommandRepository commandRepository) {
-        super("reddit", commandRepository);
-        this.gson = gson;
-    }
+    private static final String REDDIT_API_URL = "https://www.reddit.com/r/%s/randomrising.json?limit=1";
 
     @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments) {
+    @HandleSlash(name = "reddit", desc = "Get a random post from a specified subreddit", options = @Option(name = "subreddit", required = true, type = OptionType.STRING), global = true)
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
-            String value = fuseArguments(arguments);
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            interaction.respondLater();
 
-            ServerTextChannel channel = event.getServerTextChannel().get();
+            //We don't have to check if the optional is empty, because "subreddit" is a required command parameter
+            String value = interaction.getArgumentStringValueByName("subreddit").get();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
             try {
-                HttpResponse<String> init = Unirest
-                        .get("https://www.reddit.com/r/" + URLEncoder.encode(value, StandardCharsets.UTF_8) + "/random.json")
-                        .asString();
+                HttpResponse<String> init = Unirest.get(String.format(REDDIT_API_URL, URLEncoder.encode(value, StandardCharsets.UTF_8))).asString();
 
                 switch (init.getStatus()) {
-                    case 302 -> {
-                        if (!init.getBody().isBlank()) {
-                            channel.sendMessage("This subreddit is private");
-                            return;
-                        }
+                    case 200: {
+                        RedditSubmission submission = gson.fromJson(gson.fromJson(init.getBody(), JsonObject.class)
+                                .get("data").getAsJsonObject()
+                                .get("children").getAsJsonArray()
+                                .get(0).getAsJsonObject()
+                                .get("data").getAsJsonObject(), RedditSubmission.class);
+
+                        EmbedBuilder embedBuilder = new EmbedBuilder()
+                                .setAuthor(submission.author())
+                                .setTitle(submission.title())
+                                .setDescription(submission.selftext())
+                                .setUrl("https://reddit.com" + submission.permalink())
+                                .setFooter(String.format(MessageUtils.getMessage("REDDIT_FOOTER", localeCode), submission.subreddit_name_prefixed()));
+
+                        if (submission.url() != null && !submission.is_video()) embedBuilder.setImage(submission.url());
+
+                        responder.addEmbed(embedBuilder).send();
+
+                        if (submission.is_video())
+                            interaction.createFollowupMessageBuilder()
+                                    .addEmbed(new EmbedBuilder()
+                                            .setDescription(MessageUtils.getMessage("SUBMISSION_HAS_VIDEO", localeCode)))
+                                    .send();
+                        break;
                     }
-                    case 404 -> {
-                        channel.sendMessage("This subreddit doesn't exist");
-                        return;
+                    case 403: {
+                        responder.setContent(MessageUtils.getMessage("SUBREDDIT_PRIVATE", localeCode)).send();
+                        break;
                     }
-                    default -> {
-                        channel.sendMessage("An unexpected Reddit API error has occurred: " + init.getBody());
-                        return;
+                    case 404: {
+                        responder.setContent(MessageUtils.getMessage("SUBREDDIT_NOT_FOUND", localeCode)).send();
+                        break;
+                    }
+                    default: {
+                        responder.setContent(String.format(MessageUtils.getMessage("REDDIT_ERROR", localeCode), init.getBody())).send();
+                        break;
                     }
                 }
-
-                URL url = new URL(init.getHeaders().get("location").get(0));
-
-                String[] path = url.getPath().split("/");
-
-                path[path.length - 2] = URLEncoder.encode(path[path.length - 2], StandardCharsets.UTF_8);
-
-                HttpResponse<String> response = Unirest
-                        .get("https://www.reddit.com/" + String.join("/", path))
-                        .asString();
-
-                RedditSubmission submission = gson
-                        .fromJson(gson.fromJson(response.getBody(), JsonArray.class)
-                                .get(0).getAsJsonObject().get("data")
-                                .getAsJsonObject().get("children").getAsJsonArray().get(0).getAsJsonObject().get("data")
-                                .getAsJsonObject(), RedditSubmission.class);
-
-                if (submission.isOver_18() && !channel.isNsfw()) {
-                    channel.sendMessage("This isn't a time and place for that, use an NSFW-enabled channel");
-                    return;
-                }
-
-                MessageBuilder builder = new MessageBuilder();
-
-                EmbedBuilder embedBuilder = new EmbedBuilder()
-                        .setAuthor(submission.getAuthor())
-                        .setTitle(submission.getTitle())
-                        .setDescription(submission.getSelftext())
-                        .setUrl("https://reddit.com" + submission.getPermalink())
-                        .setFooter("A random post from " + submission.getSubreddit_name_prefixed());
-
-                if (submission.getUrl() != null && !submission.is_video())
-                    embedBuilder.setImage(submission.getUrl());
-
-                builder.setEmbed(embedBuilder);
-                builder.send(channel);
-
-                if (submission.is_video())
-                    new MessageBuilder()
-                            .setEmbed(new EmbedBuilder()
-                                    .setDescription("The above Reddit post contains a video, visit it in your browser to see it!"))
-                            .send(channel);
             } catch (Exception ex) {
-                channel.sendMessage("An unexpected backend error has occurred: " + ex.getMessage());
+                responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), ex.getMessage())).send();
                 ex.printStackTrace();
             }
         }).start();
+    }
+
+    private record RedditSubmission(boolean over_18, boolean is_video, String permalink, String url, String selftext,
+                                    String author, String title, String subreddit_name_prefixed) {
     }
 
 }

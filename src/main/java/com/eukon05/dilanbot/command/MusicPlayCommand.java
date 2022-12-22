@@ -1,66 +1,84 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
+import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
-import com.eukon05.dilanbot.repository.CommandRepository;
-import org.javacord.api.entity.channel.ServerTextChannel;
+import me.koply.kcommando.internal.OptionType;
+import me.koply.kcommando.internal.annotations.HandleSlash;
+import me.koply.kcommando.internal.annotations.Option;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.stereotype.Component;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
-@Component
-public class MusicPlayCommand extends MusicCommand {
+import java.util.Optional;
 
-    public MusicPlayCommand(CommandRepository commandRepository) {
-        super("play", commandRepository);
+public class MusicPlayCommand extends AbstractMusicCommand {
+
+    public MusicPlayCommand(PlayerManager playerManager) {
+        super(playerManager);
     }
 
+    @HandleSlash(name = "play",
+            desc = "Plays the specified track or disables pause",
+            options = @Option(name = "title", desc = "Name of the song to play", type = OptionType.STRING),
+            global = true)
+
     @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
-            ServerTextChannel channel = event.getServerTextChannel().get();
-            String value = fuseArguments(arguments);
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            interaction.respondLater();
+            Server server = getServer(interaction);
+            ServerMusicManager manager = playerManager.getServerMusicManager(server.getId());
+            InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            Optional<String> valueOpt = interaction.getArgumentStringValueByName("title");
+            User user = interaction.getUser();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
-            if (value.isEmpty()) {
+            if (valueOpt.isEmpty()) {
 
-                if (!comboCheck(me, event, manager))
+                if (!comboCheck(interaction, manager))
                     return;
 
                 if (manager.getPlayer().isPaused()) {
                     manager.getPlayer().setPaused(false);
-                    channel.sendMessage("**:arrow_forward: Music resumed**");
+                    responder.setContent(MessageUtils.getMessage("RESUMED", localeCode)).send();
                 } else
-                    channel.sendMessage("**:x: The track isn't paused!**");
+                    responder.setContent(MessageUtils.getMessage("NOT_PAUSED", localeCode)).send();
 
                 return;
             }
+
+            String value = valueOpt.get();
 
             if (!value.startsWith("http://") && !value.startsWith("https://")) {
                 value = "ytsearch:" + value;
             }
 
-            if (me.getConnectedVoiceChannel(channel.getServer()).isEmpty()) {
+            if (getSelf(interaction).getConnectedVoiceChannel(server).isEmpty()) {
 
-                if (event.getMessageAuthor().getConnectedVoiceChannel().isEmpty()) {
-                    channel.sendMessage("**:x: You have to be connected to a voice channel!**");
+                if (user.getConnectedVoiceChannel(server).isEmpty()) {
+                    responder.setContent(MessageUtils.getMessage("VC_USER_NOT_CONNECTED", localeCode)).send();
                     return;
                 }
 
-                event.getMessageAuthor().getConnectedVoiceChannel().get().connect().thenAccept(audioConnection -> {
+                user.getConnectedVoiceChannel(server).get().connect().thenAccept(audioConnection -> {
 
                     audioConnection.setAudioSource(manager.getAudioSource());
-                    playerManager.addServerAudioConnection(discordServer.getId(), audioConnection);
+                    playerManager.addServerAudioConnection(server.getId(), audioConnection);
 
                 }).exceptionally(e -> {
-                    channel.sendMessage("Something went wrong! " + e.getMessage());
+                    responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), e.getMessage())).send();
                     e.printStackTrace();
                     return null;
                 });
 
-            } else if (!isUserOnVCCheck(me, event))
+            } else if (!voiceCheck(interaction))
                 return;
 
-            playerManager.loadAndPlay(channel, value);
+            playerManager.loadAndPlay(interaction, value);
         }).start();
     }
 

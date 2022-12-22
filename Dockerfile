@@ -1,12 +1,5 @@
-# syntax=docker/dockerfile:1
+FROM openjdk:17-jdk-alpine
 
-FROM maven:3.8.5-openjdk-17
-
-WORKDIR /app
-
-COPY pom.xml ./
-RUN mvn dependency:go-offline
-
-COPY src ./src
-
-CMD ["mvn", "spring-boot:run"]
+ARG JAR_FILE=*.jar
+ADD target/${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]

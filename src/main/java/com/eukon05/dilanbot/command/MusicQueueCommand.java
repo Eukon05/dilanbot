@@ -1,34 +1,52 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
+import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
-import com.eukon05.dilanbot.repository.CommandRepository;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.MessageBuilder;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import me.koply.kcommando.internal.OptionType;
+import me.koply.kcommando.internal.annotations.HandleSlash;
+import me.koply.kcommando.internal.annotations.Option;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.stereotype.Component;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
-@Component
-public class MusicQueueCommand extends MusicCommand {
+import java.util.ArrayList;
 
-    public MusicQueueCommand(CommandRepository commandRepository) {
-        super("queue", commandRepository);
+public class MusicQueueCommand extends AbstractMusicCommand {
+
+    private static final String QUEUE_LISTING = "%d. [%s](%s) \n";
+    private static final String QUEUE_PAGE = "Page %d/%d";
+
+    public MusicQueueCommand(PlayerManager playerManager) {
+        super(playerManager);
     }
 
+    @HandleSlash(name = "queue",
+            desc = "Lists tracks that are currently queued",
+            options = @Option(name = "page", desc = "Which page of the queue to display", type = OptionType.INTEGER),
+            global = true)
     @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
-            ServerTextChannel channel = event.getServerTextChannel().get();
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            interaction.respondLater();
+            ServerMusicManager manager = playerManager.getServerMusicManager(getServer(interaction).getId());
+            InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
-            if (!isBotOnVCCheck(me, event) || !isUserOnVCCheck(me, event))
+            ArrayList<AudioTrack> queue = manager.getScheduler().getQueue();
+            long p = interaction.getArgumentLongValueByName("page").orElse(1L);
+
+            if (!voiceCheck(interaction))
                 return;
 
-            int queueSize = manager.getScheduler().getQueue().size();
+            int queueSize = queue.size();
 
             if (queueSize == 0) {
-                channel.sendMessage("**The queue is empty!**");
+                responder.setContent(MessageUtils.getMessage("QUEUE_EMPTY", localeCode)).send();
                 return;
             }
 
@@ -41,41 +59,28 @@ public class MusicQueueCommand extends MusicCommand {
                 pages = pages + 1;
 
 
-            int page;
-            if (arguments.length == 1)
-                page = 1;
-            else if (Integer.parseInt(arguments[1]) > pages) {
-                channel.sendMessage("**:x: There aren't that many pages**");
+            if (p > pages) {
+                responder.setContent(MessageUtils.getMessage("QUEUE_LESS_PAGES", localeCode)).send();
                 return;
-            } else
-                page = Integer.parseInt(arguments[1]);
+            }
 
-            MessageBuilder messageBuilder = new MessageBuilder();
             EmbedBuilder embedBuilder = new EmbedBuilder();
-            embedBuilder.setTitle("Tracks in the queue");
-            embedBuilder.setFooter("Page " + page + "/" + pages);
+            embedBuilder.setTitle(MessageUtils.getMessage("QUEUE_TRACKS", localeCode));
+            embedBuilder.setFooter(String.format(QUEUE_PAGE, p, pages));
 
             StringBuilder content = new StringBuilder();
 
-            for (int i = 5 * (page - 1); i < 5 * page; i++) {
+            AudioTrackInfo trackInfo;
+            for (int i = (int) (5 * (p - 1)); i < 5 * p; i++) {
                 if (i >= queueSize)
                     break;
 
-                content.append(i + 1)
-                        .append(".")
-                        .append(" ")
-                        .append("[")
-                        .append(manager.getScheduler().getQueue().get(i).getInfo().title)
-                        .append("](")
-                        .append(manager.getScheduler().getQueue().get(i).getInfo().uri)
-                        .append(")")
-                        .append("\n");
+                trackInfo = queue.get(i).getInfo();
+                content.append(String.format(QUEUE_LISTING, i + 1, trackInfo.title, trackInfo.uri));
             }
 
             embedBuilder.setDescription(content.toString());
-            messageBuilder.setEmbed(embedBuilder);
-
-            messageBuilder.send(channel);
+            responder.addEmbed(embedBuilder).send();
         }).start();
     }
 

@@ -1,50 +1,56 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
+import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
-import com.eukon05.dilanbot.repository.CommandRepository;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.MessageBuilder;
+import me.koply.kcommando.internal.annotations.HandleSlash;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.stereotype.Component;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
-@Component
-public class MusicSkipCommand extends MusicCommand {
+import static com.eukon05.dilanbot.MessageUtils.MARKDOWN_URL;
 
-    public MusicSkipCommand(CommandRepository commandRepository) {
-        super("skip", commandRepository);
+public class MusicSkipCommand extends AbstractMusicCommand {
+
+    public MusicSkipCommand(PlayerManager playerManager) {
+        super(playerManager);
     }
 
+    @HandleSlash(name = "skip", desc = "Skips the currently playing track", global = true)
     @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
-            ServerTextChannel channel = event.getServerTextChannel().get();
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            interaction.respondLater();
+            Server server = getServer(interaction);
+            ServerMusicManager manager = playerManager.getServerMusicManager(server.getId());
+            InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
-            if (!comboCheck(me, event, manager))
+            if (!comboCheck(interaction, manager))
                 return;
 
             if (manager.getScheduler().getLoopTrack() != null) {
                 manager.getScheduler().setLoopTrack(null);
-                channel.sendMessage("**:warning: Loop disabled!**");
+                responder.setContent(MessageUtils.getMessage("LOOP_DISABLED", localeCode)).send();
             }
 
             manager.getScheduler().nextTrack();
-            channel.sendMessage("**:fast_forward: Skipped**");
+            responder.setContent(MessageUtils.getMessage("SKIPPED", localeCode)).send();
 
             AudioTrack track = manager.getPlayer().getPlayingTrack();
 
             if (track == null)
                 return;
 
-            new MessageBuilder().setEmbed(new EmbedBuilder()
-                            .setTitle("Now Playing")
-                            .setDescription("[" + track.getInfo().title + "](" + track.getInfo().uri + ")")
+            interaction.createFollowupMessageBuilder().addEmbed(new EmbedBuilder()
+                            .setTitle(MessageUtils.getMessage("NP", localeCode))
+                            .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri))
                             .setThumbnail(track.getInfo().artworkUrl))
-                    .send(channel);
-
+                    .send();
         }).start();
     }
 

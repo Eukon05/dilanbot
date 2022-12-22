@@ -1,54 +1,64 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.domain.DiscordServer;
+import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
-import com.eukon05.dilanbot.repository.CommandRepository;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.stereotype.Component;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import me.koply.kcommando.internal.OptionType;
+import me.koply.kcommando.internal.annotations.HandleSlash;
+import me.koply.kcommando.internal.annotations.Option;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
-@Component
-public class MusicRemoveCommand extends MusicCommand {
+import java.util.ArrayList;
 
-    public MusicRemoveCommand(CommandRepository commandRepository) {
-        super("remove", commandRepository);
+public class MusicRemoveCommand extends AbstractMusicCommand {
+
+    private static final String RESPONSE = "**Removed \"%s\" from the queue**";
+
+
+    public MusicRemoveCommand(PlayerManager playerManager) {
+        super(playerManager);
     }
 
+    @HandleSlash(name = "remove",
+            desc = "Removes a track from the queue",
+            options = @Option(name = "index", desc = "number of the song in the queue to remove", type = OptionType.INTEGER),
+            global = true)
     @Override
-    public void run(MessageCreateEvent event, DiscordServer discordServer, String[] arguments, User me, ServerMusicManager manager) {
+    public void run(SlashCommandCreateEvent event) {
         new Thread(() -> {
-            ServerTextChannel channel = event.getServerTextChannel().get();
+            SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+            interaction.respondLater();
+            ServerMusicManager manager = playerManager.getServerMusicManager(event.getSlashCommandInteraction().getServer().get().getId());
+            InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+            String localeCode = interaction.getLocale().getLocaleCode();
 
-            if (!isBotOnVCCheck(me, event) || !isUserOnVCCheck(me, event))
+            ArrayList<AudioTrack> queue = manager.getScheduler().getQueue();
+            long n = interaction.getArgumentLongValueByName("index").orElse(1L);
+
+            if (!voiceCheck(interaction))
                 return;
 
-            int queueSize = manager.getScheduler().getQueue().size();
-
-            if (queueSize == 0) {
-                channel.sendMessage("**The queue is empty!**");
+            if (queue.isEmpty()) {
+                responder.setContent(MessageUtils.getMessage("QUEUE_EMPTY", localeCode)).send();
                 return;
             }
 
-            int index;
-
-            if (arguments.length == 1)
-                index = queueSize - 1;
-            else {
-                index = Integer.parseInt(arguments[1]);
-                if (index < 1) {
-                    channel.sendMessage("**The index of the song to remove must be equal to at least 1**");
-                    return;
-                }
-                if (index > queueSize) {
-                    channel.sendMessage("**There are less songs in the queue than the index you've specified**");
-                    return;
-                }
+            if (n < 1) {
+                responder.setContent(MessageUtils.getMessage("QUEUE_INVALID_INDEX", localeCode)).send();
+                return;
+            }
+            if (n > queue.size()) {
+                responder.setContent(MessageUtils.getMessage("QUEUE_LESS_TRACKS", localeCode)).send();
+                return;
             }
 
-            String title = manager.getScheduler().getQueue().get(index - 1).getInfo().title;
-            manager.getScheduler().getQueue().remove(index - 1);
-            channel.sendMessage("**Removed \"" + title + "\" from the queue**");
+
+            String title = queue.get((int) (n - 1)).getInfo().title;
+            manager.getScheduler().getQueue().remove((int) n - 1);
+            responder.setContent(String.format(RESPONSE, title)).send();
         }).start();
     }
 
