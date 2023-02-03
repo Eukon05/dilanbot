@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import kong.unirest.HttpResponse;
@@ -52,7 +52,7 @@ public class RedditCommand implements Command {
                                 .setTitle(submission.title())
                                 .setDescription(submission.selftext())
                                 .setUrl("https://reddit.com" + submission.permalink())
-                                .setFooter(String.format(MessageUtils.getMessage("REDDIT_FOOTER", localeCode), submission.subreddit_name_prefixed()));
+                                .setFooter(String.format(Message.REDDIT_FOOTER.get(localeCode), submission.subreddit_name_prefixed()));
 
                         if (submission.url() != null && !submission.is_video()) embedBuilder.setImage(submission.url());
 
@@ -61,25 +61,25 @@ public class RedditCommand implements Command {
                         if (submission.is_video())
                             interaction.createFollowupMessageBuilder()
                                     .addEmbed(new EmbedBuilder()
-                                            .setDescription(MessageUtils.getMessage("SUBMISSION_HAS_VIDEO", localeCode)))
+                                            .setDescription(Message.SUBMISSION_HAS_VIDEO.get(localeCode)))
                                     .send();
                         break;
                     }
                     case 403: {
-                        responder.setContent(MessageUtils.getMessage("SUBREDDIT_PRIVATE", localeCode)).send();
+                        responder.setContent(Message.SUBREDDIT_PRIVATE.get(localeCode)).send();
                         break;
                     }
                     case 404: {
-                        responder.setContent(MessageUtils.getMessage("SUBREDDIT_NOT_FOUND", localeCode)).send();
+                        responder.setContent(Message.SUBREDDIT_NOT_FOUND.get(localeCode)).send();
                         break;
                     }
                     default: {
-                        responder.setContent(String.format(MessageUtils.getMessage("REDDIT_ERROR", localeCode), init.getBody())).send();
+                        responder.setContent(String.format(Message.REDDIT_ERROR.get(localeCode), init.getBody())).send();
                         break;
                     }
                 }
             } catch (Exception ex) {
-                responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), ex.getMessage())).send();
+                responder.setContent(String.format(Message.ERROR.get(localeCode), ex.getMessage())).send();
                 ex.printStackTrace();
             }
         }).start();

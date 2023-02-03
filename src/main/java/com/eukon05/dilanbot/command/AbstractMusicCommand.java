@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import lombok.AllArgsConstructor;
@@ -25,13 +25,13 @@ public abstract class AbstractMusicCommand implements Command {
         String localeCode = interaction.getLocale().getLocaleCode();
 
         if (myVc.isEmpty()) {
-            responder.setContent(MessageUtils.getMessage("VC_BOT_NOT_CONNECTED", localeCode)).send();
+            responder.setContent(Message.VC_BOT_NOT_CONNECTED.get(localeCode)).send();
             return false;
         } else if (vc.isEmpty()) {
-            responder.setContent(MessageUtils.getMessage("VC_USER_NOT_CONNECTED", localeCode)).send();
+            responder.setContent(Message.VC_USER_NOT_CONNECTED.get(localeCode)).send();
             return false;
         } else if (!vc.get().equals(myVc.get())) {
-            responder.setContent(MessageUtils.getMessage("VC_DIFFERENT_CHANNELS", localeCode)).send();
+            responder.setContent(Message.VC_DIFFERENT_CHANNELS.get(localeCode)).send();
             return false;
         } else {
             return true;
@@ -41,7 +41,7 @@ public abstract class AbstractMusicCommand implements Command {
     protected boolean isMusicPlayingCheck(SlashCommandInteraction interaction, ServerMusicManager manager) {
         String localeCode = interaction.getLocale().getLocaleCode();
         if (manager.getPlayer().getPlayingTrack() == null) {
-            interaction.createFollowupMessageBuilder().setContent(MessageUtils.getMessage("NOT_PLAYING", localeCode)).send();
+            interaction.createFollowupMessageBuilder().setContent(Message.NOT_PLAYING.get(localeCode)).send();
             return false;
         } else
             return true;
@@ -56,7 +56,7 @@ public abstract class AbstractMusicCommand implements Command {
         String localeCode = interaction.getLocale().getLocaleCode();
         Optional<Server> serverOpt = interaction.getServer();
         if (serverOpt.isEmpty()) {
-            interaction.createFollowupMessageBuilder().setContent(MessageUtils.getMessage("DM", localeCode)).send();
+            interaction.createFollowupMessageBuilder().setContent(Message.DM.get(localeCode)).send();
             Thread.currentThread().stop();
             return null;
         }

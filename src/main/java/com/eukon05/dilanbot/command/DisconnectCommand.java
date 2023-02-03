@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import me.koply.kcommando.internal.annotations.HandleSlash;
@@ -37,7 +37,7 @@ public class DisconnectCommand extends AbstractMusicCommand {
             playerManager.getServerAudioConnection(server.getId()).close();
             playerManager.removeServerAudioConnection(server.getId());
 
-            interaction.createImmediateResponder().setContent(String.format(MessageUtils.getMessage("DISCONNECT", localeCode), me.getConnectedVoiceChannel(server).get().getName())).respond();
+            interaction.createImmediateResponder().setContent(String.format(Message.DISCONNECT.get(localeCode), me.getConnectedVoiceChannel(server).get().getName())).respond();
 
         }).start();
     }

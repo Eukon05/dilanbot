@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -14,10 +14,6 @@ import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 import java.util.ArrayList;
 
 public class MusicRemoveCommand extends AbstractMusicCommand {
-
-    private static final String RESPONSE = "**Removed \"%s\" from the queue**";
-
-
     public MusicRemoveCommand(PlayerManager playerManager) {
         super(playerManager);
     }
@@ -36,29 +32,29 @@ public class MusicRemoveCommand extends AbstractMusicCommand {
             String localeCode = interaction.getLocale().getLocaleCode();
 
             ArrayList<AudioTrack> queue = manager.getScheduler().getQueue();
-            long n = interaction.getArgumentLongValueByName("index").orElse(1L);
+            long n = interaction.getArgumentLongValueByName("index").orElse((long) (queue.size()));
 
             if (!voiceCheck(interaction))
                 return;
 
             if (queue.isEmpty()) {
-                responder.setContent(MessageUtils.getMessage("QUEUE_EMPTY", localeCode)).send();
+                responder.setContent(Message.QUEUE_EMPTY.get(localeCode)).send();
                 return;
             }
 
             if (n < 1) {
-                responder.setContent(MessageUtils.getMessage("QUEUE_INVALID_INDEX", localeCode)).send();
+                responder.setContent(Message.QUEUE_INVALID_INDEX.get(localeCode)).send();
                 return;
             }
             if (n > queue.size()) {
-                responder.setContent(MessageUtils.getMessage("QUEUE_LESS_TRACKS", localeCode)).send();
+                responder.setContent(Message.QUEUE_LESS_TRACKS.get(localeCode)).send();
                 return;
             }
 
 
             String title = queue.get((int) (n - 1)).getInfo().title;
             manager.getScheduler().getQueue().remove((int) n - 1);
-            responder.setContent(String.format(RESPONSE, title)).send();
+            responder.setContent(String.format(Message.QUEUE_REMOVED_TRACK.get(localeCode), title)).send();
         }).start();
     }
 

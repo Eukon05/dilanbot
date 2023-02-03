@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -46,7 +46,7 @@ public class MusicQueueCommand extends AbstractMusicCommand {
             int queueSize = queue.size();
 
             if (queueSize == 0) {
-                responder.setContent(MessageUtils.getMessage("QUEUE_EMPTY", localeCode)).send();
+                responder.setContent(Message.QUEUE_EMPTY.get(localeCode)).send();
                 return;
             }
 
@@ -60,12 +60,12 @@ public class MusicQueueCommand extends AbstractMusicCommand {
 
 
             if (p > pages) {
-                responder.setContent(MessageUtils.getMessage("QUEUE_LESS_PAGES", localeCode)).send();
+                responder.setContent(Message.QUEUE_LESS_PAGES.get(localeCode)).send();
                 return;
             }
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
-            embedBuilder.setTitle(MessageUtils.getMessage("QUEUE_TRACKS", localeCode));
+            embedBuilder.setTitle(Message.QUEUE_TRACKS.get(localeCode));
             embedBuilder.setFooter(String.format(QUEUE_PAGE, p, pages));
 
             StringBuilder content = new StringBuilder();

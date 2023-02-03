@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -31,12 +31,12 @@ public class MusicPauseCommand extends AbstractMusicCommand {
                 return;
 
             if (player.isPaused()) {
-                responder.setContent(MessageUtils.getMessage("IS_PAUSED", localeCode)).send();
+                responder.setContent(Message.IS_PAUSED.get(localeCode)).send();
                 return;
             }
 
             player.setPaused(true);
-            responder.setContent(MessageUtils.getMessage("PAUSED", localeCode)).send();
+            responder.setContent(Message.PAUSED.get(localeCode)).send();
         }).start();
     }
 

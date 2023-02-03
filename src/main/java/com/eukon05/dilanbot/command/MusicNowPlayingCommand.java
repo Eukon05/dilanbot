@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -9,7 +9,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteraction;
 
-import static com.eukon05.dilanbot.MessageUtils.MARKDOWN_URL;
+import static com.eukon05.dilanbot.Message.MARKDOWN_URL;
 
 public class MusicNowPlayingCommand extends AbstractMusicCommand {
 
@@ -32,7 +32,7 @@ public class MusicNowPlayingCommand extends AbstractMusicCommand {
             AudioTrack track = manager.getPlayer().getPlayingTrack();
 
             interaction.createFollowupMessageBuilder().addEmbed(new EmbedBuilder()
-                            .setTitle(MessageUtils.getMessage("NP", localeCode))
+                            .setTitle(Message.NP.get(localeCode))
                             .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri))
                             .setThumbnail(track.getInfo().artworkUrl))
                     .send();

@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import com.google.gson.Gson;
@@ -57,11 +57,11 @@ public class MusicLyricsCommand extends AbstractMusicCommand {
                 wordList = gson.fromJson(new InputStreamReader(wordListUrl.openStream()), JsonArray.class);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                responder.setContent(MessageUtils.getMessage("WORDLIST_NOT_FOUND", localeCode)).send();
+                responder.setContent(Message.WORDLIST_NOT_FOUND.get(localeCode)).send();
 
             } catch (IOException e) {
                 e.printStackTrace();
-                responder.setContent(String.format(MessageUtils.getMessage("IO_ERROR", localeCode), e.getMessage())).send();
+                responder.setContent(String.format(Message.IO_ERROR.get(localeCode), e.getMessage())).send();
             }
 
             SongSearch search;
@@ -86,10 +86,10 @@ public class MusicLyricsCommand extends AbstractMusicCommand {
                 } catch (Exception e) {
 
                     if (e.getMessage() == null)
-                        responder.setContent(MessageUtils.getMessage("GENIUS_NOT_FOUND", localeCode)).send();
+                        responder.setContent(Message.GENIUS_NOT_FOUND.get(localeCode)).send();
 
                     else
-                        responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), e.getMessage())).send();
+                        responder.setContent(String.format(Message.ERROR.get(localeCode), e.getMessage())).send();
 
                     e.printStackTrace();
 
@@ -105,10 +105,10 @@ public class MusicLyricsCommand extends AbstractMusicCommand {
                 } catch (Exception e) {
 
                     if (e.getMessage() == null)
-                        responder.setContent(MessageUtils.getMessage("GENIUS_NOT_FOUND", localeCode)).send();
+                        responder.setContent(Message.GENIUS_NOT_FOUND.get(localeCode)).send();
 
                     else
-                        responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), e.getMessage())).send();
+                        responder.setContent(String.format(Message.ERROR.get(localeCode), e.getMessage())).send();
 
                     e.printStackTrace();
 
@@ -122,7 +122,7 @@ public class MusicLyricsCommand extends AbstractMusicCommand {
             embedBuilder.setTitle(hit.getTitle());
             embedBuilder.setDescription(hit.fetchLyrics());
             embedBuilder.setImage(hit.getImageUrl());
-            embedBuilder.setFooter(MessageUtils.getMessage("GENIUS_FOOTER", localeCode));
+            embedBuilder.setFooter(Message.GENIUS_FOOTER.get(localeCode));
 
             responder.addEmbed(embedBuilder).send();
         }).start();

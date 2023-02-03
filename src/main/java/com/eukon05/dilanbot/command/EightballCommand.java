@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import kong.unirest.HttpResponse;
@@ -45,11 +45,11 @@ public class EightballCommand {
                                 .setAuthor(interaction.getUser())
                                 .setTitle(question)
                                 .setDescription(apiResponse)
-                                .setFooter(MessageUtils.getMessage("8BALL_FOOTER", localeCode)))
+                                .setFooter(Message.EIGHTBALL_FOOTER.get(localeCode)))
                         .send();
 
             } catch (Exception ex) {
-                responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), ex.getMessage())).send();
+                responder.setContent(String.format(Message.ERROR.get(localeCode), ex.getMessage())).send();
                 ex.printStackTrace();
             }
         }).start();

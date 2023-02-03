@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -36,13 +36,13 @@ public class MusicShuffleCommand extends AbstractMusicCommand {
                 return;
 
             if (queue.isEmpty()) {
-                responder.setContent(MessageUtils.getMessage("QUEUE_EMPTY", localeCode)).send();
+                responder.setContent(Message.QUEUE_EMPTY.get(localeCode)).send();
                 return;
             }
 
             Collections.shuffle(queue);
 
-            responder.setContent(MessageUtils.getMessage("QUEUE_SHUFFLED", localeCode)).send();
+            responder.setContent(Message.QUEUE_SHUFFLED.get(localeCode)).send();
         }).start();
     }
 

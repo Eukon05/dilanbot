@@ -1,10 +1,10 @@
 package com.eukon05.dilanbot.lavaplayer;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -17,7 +17,7 @@ import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
 import java.util.HashMap;
 
-import static com.eukon05.dilanbot.MessageUtils.MARKDOWN_URL;
+import static com.eukon05.dilanbot.Message.MARKDOWN_URL;
 
 public class PlayerManager {
 
@@ -30,7 +30,8 @@ public class PlayerManager {
 
     public PlayerManager(DiscordApi api) {
         this.api = api;
-        audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+        AudioSourceManagers.registerRemoteSources(audioPlayerManager);
+        AudioSourceManagers.registerLocalSource(audioPlayerManager);
     }
 
     private final HashMap<Long, ServerMusicManager> playersMap = new HashMap<>();
@@ -59,12 +60,12 @@ public class PlayerManager {
         String localeCode = interaction.getLocale().getLocaleCode();
 
         audioPlayerManager.loadItemOrdered(manager, trackUrl, new AudioLoadResultHandler() {
-            String action = MessageUtils.getMessage("PLAYING", localeCode);
+            String action = Message.PLAYING.get(localeCode);
 
             @Override
             public void trackLoaded(AudioTrack track) {
                 if (manager.getPlayer().getPlayingTrack() != null)
-                    action = MessageUtils.getMessage("QUEUED", localeCode);
+                    action = Message.QUEUED.get(localeCode);
 
                 manager.getScheduler().queue(track);
 
@@ -78,7 +79,7 @@ public class PlayerManager {
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
                 if (manager.getPlayer().getPlayingTrack() != null)
-                    action = MessageUtils.getMessage("QUEUED", localeCode);
+                    action = Message.QUEUED.get(localeCode);
 
                 if (!playlist.isSearchResult()) {
 
@@ -105,12 +106,12 @@ public class PlayerManager {
 
             @Override
             public void noMatches() {
-                builder.setContent(MessageUtils.getMessage("NO_MATCH", localeCode)).send();
+                builder.setContent(Message.NO_MATCH.get(localeCode)).send();
             }
 
             @Override
             public void loadFailed(FriendlyException e) {
-                builder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), e.getMessage())).send();
+                builder.setContent(String.format(Message.ERROR.get(localeCode), e.getMessage())).send();
                 e.printStackTrace();
             }
         });

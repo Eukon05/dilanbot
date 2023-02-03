@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import me.koply.kcommando.internal.annotations.HandleSlash;
@@ -30,11 +30,11 @@ public class MusicLoopCommand extends AbstractMusicCommand {
             if (manager.getScheduler().getLoopTrack() == null) {
                 manager.getScheduler().setLoopTrack(manager.getPlayer().getPlayingTrack());
                 responder
-                        .setContent(String.format(MessageUtils.getMessage("LOOP_ENABLED", localeCode), manager.getScheduler().getLoopTrack().getInfo().title))
+                        .setContent(String.format(Message.LOOP_ENABLED.get(localeCode), manager.getScheduler().getLoopTrack().getInfo().title))
                         .send();
             } else {
                 manager.getScheduler().setLoopTrack(null);
-                responder.setContent(MessageUtils.getMessage("LOOP_DISABLED", localeCode)).send();
+                responder.setContent(Message.LOOP_DISABLED.get(localeCode)).send();
             }
         }).start();
     }

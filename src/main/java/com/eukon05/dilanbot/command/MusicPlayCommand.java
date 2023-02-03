@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import me.koply.kcommando.internal.OptionType;
@@ -44,9 +44,9 @@ public class MusicPlayCommand extends AbstractMusicCommand {
 
                 if (manager.getPlayer().isPaused()) {
                     manager.getPlayer().setPaused(false);
-                    responder.setContent(MessageUtils.getMessage("RESUMED", localeCode)).send();
+                    responder.setContent(Message.RESUMED.get(localeCode)).send();
                 } else
-                    responder.setContent(MessageUtils.getMessage("NOT_PAUSED", localeCode)).send();
+                    responder.setContent(Message.NOT_PAUSED.get(localeCode)).send();
 
                 return;
             }
@@ -60,7 +60,7 @@ public class MusicPlayCommand extends AbstractMusicCommand {
             if (getSelf(interaction).getConnectedVoiceChannel(server).isEmpty()) {
 
                 if (user.getConnectedVoiceChannel(server).isEmpty()) {
-                    responder.setContent(MessageUtils.getMessage("VC_USER_NOT_CONNECTED", localeCode)).send();
+                    responder.setContent(Message.VC_USER_NOT_CONNECTED.get(localeCode)).send();
                     return;
                 }
 
@@ -70,7 +70,7 @@ public class MusicPlayCommand extends AbstractMusicCommand {
                     playerManager.addServerAudioConnection(server.getId(), audioConnection);
 
                 }).exceptionally(e -> {
-                    responder.setContent(String.format(MessageUtils.getMessage("ERROR", localeCode), e.getMessage())).send();
+                    responder.setContent(String.format(Message.ERROR.get(localeCode), e.getMessage())).send();
                     e.printStackTrace();
                     return null;
                 });

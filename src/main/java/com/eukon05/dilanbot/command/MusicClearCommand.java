@@ -1,6 +1,6 @@
 package com.eukon05.dilanbot.command;
 
-import com.eukon05.dilanbot.MessageUtils;
+import com.eukon05.dilanbot.Message;
 import com.eukon05.dilanbot.lavaplayer.PlayerManager;
 import com.eukon05.dilanbot.lavaplayer.ServerMusicManager;
 import me.koply.kcommando.internal.annotations.HandleSlash;
@@ -30,16 +30,12 @@ public class MusicClearCommand extends AbstractMusicCommand {
             int queueSize = manager.getScheduler().getQueue().size();
 
             if (queueSize == 0) {
-                responder.setContent(MessageUtils.getMessage("QUEUE_EMPTY", localeCode)).send();
+                responder.setContent(Message.QUEUE_EMPTY.get(localeCode)).send();
                 return;
             }
 
             manager.getScheduler().clearQueue();
-
-            if (queueSize == 1)
-                responder.setContent(MessageUtils.getMessage("QUEUE_REMOVED_TRACK", localeCode)).send();
-            else
-                responder.setContent(String.format(MessageUtils.getMessage("QUEUE_REMOVED_TRACKS", localeCode), queueSize)).send();
+            responder.setContent(String.format(Message.QUEUE_REMOVED_TRACKS.get(localeCode), queueSize)).send();
         }).start();
     }
 
