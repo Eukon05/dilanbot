@@ -2,7 +2,7 @@
 
 
 <h2 align="center">
-<a href="https://discord.com/api/oauth2/authorize?client_id=913511878523752519&permissions=274914725120&scope=bot">Add the bot to your server by clicking this link!</a>
+<a href="https://discord.com/api/oauth2/authorize?client_id=913511878523752519&permissions=0&scope=bot">Add the bot to your server by clicking this link!</a>
 </h2>
 
 # Disclamer
