@@ -3,8 +3,6 @@ package com.eukon05.dilanbot.command;
 import com.eukon05.dilanbot.Message;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
 import lombok.RequiredArgsConstructor;
 import me.koply.kcommando.internal.OptionType;
 import me.koply.kcommando.internal.annotations.HandleSlash;
@@ -14,13 +12,18 @@ import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.callback.InteractionFollowupMessageBuilder;
 
+import java.net.URI;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 @RequiredArgsConstructor
 public class RedditCommand implements Command {
 
     private final Gson gson;
+    private final HttpClient client = HttpClient.newHttpClient();
 
     private static final String REDDIT_API_URL = "https://www.reddit.com/r/%s/randomrising.json?limit=1";
 
@@ -37,11 +40,14 @@ public class RedditCommand implements Command {
             String localeCode = interaction.getLocale().getLocaleCode();
 
             try {
-                HttpResponse<String> init = Unirest.get(String.format(REDDIT_API_URL, URLEncoder.encode(value, StandardCharsets.UTF_8))).asString();
+                HttpResponse<String> response = client.send(HttpRequest
+                        .newBuilder()
+                        .uri(URI.create(String.format(REDDIT_API_URL, URLEncoder.encode(value, StandardCharsets.UTF_8))))
+                        .build(), HttpResponse.BodyHandlers.ofString());
 
-                switch (init.getStatus()) {
-                    case 200: {
-                        RedditSubmission submission = gson.fromJson(gson.fromJson(init.getBody(), JsonObject.class)
+                switch (response.statusCode()) {
+                    case 200 -> {
+                        RedditSubmission submission = gson.fromJson(gson.fromJson(response.body(), JsonObject.class)
                                 .get("data").getAsJsonObject()
                                 .get("children").getAsJsonArray()
                                 .get(0).getAsJsonObject()
@@ -63,20 +69,11 @@ public class RedditCommand implements Command {
                                     .addEmbed(new EmbedBuilder()
                                             .setDescription(Message.SUBMISSION_HAS_VIDEO.get(localeCode)))
                                     .send();
-                        break;
                     }
-                    case 403: {
-                        responder.setContent(Message.SUBREDDIT_PRIVATE.get(localeCode)).send();
-                        break;
-                    }
-                    case 404: {
-                        responder.setContent(Message.SUBREDDIT_NOT_FOUND.get(localeCode)).send();
-                        break;
-                    }
-                    default: {
-                        responder.setContent(String.format(Message.REDDIT_ERROR.get(localeCode), init.getBody())).send();
-                        break;
-                    }
+                    case 403 -> responder.setContent(Message.SUBREDDIT_PRIVATE.get(localeCode)).send();
+                    case 404 -> responder.setContent(Message.SUBREDDIT_NOT_FOUND.get(localeCode)).send();
+                    default ->
+                            responder.setContent(String.format(Message.REDDIT_ERROR.get(localeCode), response.body())).send();
                 }
             } catch (Exception ex) {
                 responder.setContent(String.format(Message.ERROR.get(localeCode), ex.getMessage())).send();

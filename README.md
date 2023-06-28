@@ -7,18 +7,11 @@
 
 # Disclamer
 
-Development of this bot started a long time ago, so there's a lot of code in it that is not as pretty or as optimized as
-it
-should be.  
-Unfortunately, I'm currently busy with school and my other project (FinanceTracker), so I won't be updating Dilan as
-frequently as I'd like to.  
-If anything suddenly stops working, please open an issue on this GitHub repo and I'll get to fixing it when I'll have
-the time.  
-Thanks for understanding.
+This bot was made a long time ago and I no longer maintain it, aside from occasional dependency updates.
 
 ## Features and usage
 
-This bot supports "slash commands" - just type `/` in your Discord server and all of the commands will appear
+This bot supports "slash commands" - just type `/` in your Discord server and all the commands will appear
 automatically.  
 The available commands are:
 
@@ -68,15 +61,9 @@ If you have an idea for a new feature or a bugfix, feel free to open an issue or
 This bot is using the following libraries:
 
 - [Javacord](https://javacord.org/)
-
 - [LavaPlayer Fork](https://github.com/Walkyst/lavaplayer-fork) by Walkyst
-
 - [GeniusLyricsApi](https://github.com/LowLevelSubmarine/GeniusLyricsAPI) by LowLevelSubmarine
-
 - [Gson](https://github.com/google/gson)
-
-- [Unirest For Java](https://kong.github.io/unirest-java/) by Kong
-
 - [KCommando](https://github.com/koply/KCommando) by Koply
 - [8Ball API](https://www.eightballapi.com/)
 
