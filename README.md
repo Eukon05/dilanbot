@@ -22,14 +22,8 @@ The available commands are:
 - `clear` - clears the queue
 - `stop` - stops the music and clears the queue
 - `np` - shows what track is currently playing
-- `queue [page number]` - shows the specified page of the queue. If the page number is empty, it shows the first page.
-- `remove [track number]` - removes the specified track from the queue. If the track number is empty, it removes the
-  last track in the queue
-- `shuffle` - shuffles the queue randomly
 - `loop` - enables or disabled looping of the currently playing track.
 - `disconnect` - disconnects the bot from a voice chat
-- `lyrics [song title]` - shows lyrics for the specified song. If the song title is empty, it shows lyrics for what is
-  currently playing
 - `8ball [question]` - asks the magic 8-ball the specified question
 - `reddit [subreddit]` - shows a random post from the specified subreddit
 
@@ -62,7 +56,6 @@ This bot is using the following libraries:
 
 - [Javacord](https://javacord.org/)
 - [LavaPlayer Fork](https://github.com/Walkyst/lavaplayer-fork) by Walkyst
-- [GeniusLyricsApi](https://github.com/LowLevelSubmarine/GeniusLyricsAPI) by LowLevelSubmarine
 - [Gson](https://github.com/google/gson)
 - [KCommando](https://github.com/koply/KCommando) by Koply
 - [8Ball API](https://www.eightballapi.com/)
