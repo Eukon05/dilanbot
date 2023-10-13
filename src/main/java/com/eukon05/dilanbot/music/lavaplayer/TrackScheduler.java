@@ -1,13 +1,13 @@
-package com.eukon05.dilanbot.lavaplayer;
+package com.eukon05.dilanbot.music.lavaplayer;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 //Code taken from Lavaplayer's samples, thanks!
 public class TrackScheduler extends AudioEventAdapter {
@@ -17,8 +17,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private final ArrayList<AudioTrack> queue;
 
     @Getter
-    @Setter
-    private AudioTrack loopTrack = null;
+    private Optional<AudioTrack> loopTrack = Optional.empty();
 
     /**
      * @param player The audio player this scheduler uses
@@ -55,17 +54,20 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if (endReason.mayStartNext) {
-
-            if (loopTrack == null)
+            if (loopTrack.isEmpty())
                 nextTrack();
             else {
-                loopTrack = loopTrack.makeClone();
-                player.startTrack(loopTrack, true);
+                loopTrack = Optional.of(loopTrack.get().makeClone());
+                player.startTrack(loopTrack.get(), true);
             }
         }
     }
 
-    public void clearQueue() {
-        this.queue.clear();
+    public void setLoopTrack(AudioTrack track) {
+        loopTrack = Optional.of(track);
+    }
+
+    public void clearLoopTrack() {
+        loopTrack = Optional.empty();
     }
 }

@@ -1,4 +1,4 @@
-package com.eukon05.dilanbot.lavaplayer;
+package com.eukon05.dilanbot.music.lavaplayer;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
@@ -47,5 +47,4 @@ public class LavaplayerAudioSource extends AudioSourceBase {
     public AudioSource copy() {
         return new LavaplayerAudioSource(getApi(), audioPlayer);
     }
-
 }

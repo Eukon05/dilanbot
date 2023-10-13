@@ -7,13 +7,10 @@ import org.javacord.api.event.server.ServerJoinEvent;
 import org.javacord.api.listener.server.ServerJoinListener;
 
 public class ServerJoinListenerImpl implements ServerJoinListener {
-
     @Override
     public void onServerJoin(ServerJoinEvent event) {
-
         try {
             event.getServer().getSystemChannel().ifPresent(channel -> {
-
                 MessageBuilder msg = new MessageBuilder();
                 EmbedBuilder emb = new EmbedBuilder();
                 String localeCode = event.getServer().getPreferredLocale().toLanguageTag();
@@ -24,11 +21,9 @@ public class ServerJoinListenerImpl implements ServerJoinListener {
 
                 msg.setEmbed(emb);
                 msg.send(channel);
-
             });
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-
 }
