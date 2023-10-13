@@ -97,7 +97,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.eukon05.dilanbot.DilanbotApplicationOld</mainClass>
+                                    <mainClass>com.eukon05.dilanbot.DilanbotApplication</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>
