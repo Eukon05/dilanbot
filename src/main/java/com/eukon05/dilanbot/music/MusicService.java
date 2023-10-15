@@ -69,6 +69,7 @@ public class MusicService {
         AudioPlayer player = manager.getPlayer();
         checkIsPlaying(player);
 
+        manager.getScheduler().clearLoopTrack();
         manager.getScheduler().nextTrack();
         return Optional.ofNullable(player.getPlayingTrack());
     }
