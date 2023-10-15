@@ -89,7 +89,7 @@ public class MusicCommandHandler {
 
             result.ifPresent(track -> {
                 EmbedBuilder embed = new EmbedBuilder()
-                        .setTitle(Message.PLAYING.get(locale))
+                        .setTitle(Message.NOW_PLAYING.get(locale))
                         .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri))
                         .setThumbnail(track.getInfo().artworkUrl);
 
@@ -188,7 +188,7 @@ public class MusicCommandHandler {
             AudioTrack track = service.nowPlaying(user.getConnectedVoiceChannel(server).orElseThrow(UserNotConnectedException::new));
 
             EmbedBuilder embed = new EmbedBuilder()
-                    .setTitle(Message.NP.get(locale))
+                    .setTitle(Message.NOW_PLAYING.get(locale))
                     .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri))
                     .setThumbnail(track.getInfo().artworkUrl);
 

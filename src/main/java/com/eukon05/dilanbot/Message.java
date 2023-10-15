@@ -11,10 +11,7 @@ public enum Message {
     QUEUE_EMPTY,
     LOOP_ENABLED,
     LOOP_DISABLED,
-    WORDLIST_NOT_FOUND,
-    GENIUS_NOT_FOUND,
-    GENIUS_FOOTER,
-    NP,
+    NOW_PLAYING,
     QUEUE_LESS_PAGES,
     QUEUE_TRACKS,
     QUEUE_INVALID_INDEX,
@@ -34,14 +31,12 @@ public enum Message {
     JOIN_TITLE,
     JOIN_DESC,
     NO_MATCH,
-    PLAYING,
     QUEUED,
     RESUMED,
     VC_USER_NOT_CONNECTED,
     VC_BOT_NOT_CONNECTED,
     VC_DIFFERENT_CHANNELS,
     NOT_PLAYING,
-    DM,
     EIGHTBALL_FOOTER;
 
     public static final String MARKDOWN_URL = "[%s](%s)";
