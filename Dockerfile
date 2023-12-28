@@ -1,4 +1,4 @@
-FROM amazoncorretto:21.0.0
+FROM amazoncorretto:21.0.1
 
 ARG JAR_FILE=*.jar
 ADD target/${JAR_FILE} app.jar
