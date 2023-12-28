@@ -228,4 +228,21 @@ public class MusicCommandHandler {
         }
     }
 
+    @HandleSlash(name = "shuffle", desc = "Shuffles the queue", global = true)
+    public void handleShuffle(SlashCommandCreateEvent event) {
+        SlashCommandInteraction interaction = event.getSlashCommandInteraction();
+        interaction.respondLater();
+        String locale = interaction.getLocale().getLocaleCode();
+        InteractionFollowupMessageBuilder responder = interaction.createFollowupMessageBuilder();
+
+        Server server = interaction.getServer().orElseThrow();
+        User user = interaction.getUser();
+
+        try {
+            service.shuffle(user.getConnectedVoiceChannel(server).orElseThrow(UserNotConnectedException::new));
+            responder.setContent(Message.QUEUE_SHUFFLED.get(locale)).send();
+        } catch (DilanException e) {
+            e.handle(responder, locale);
+        }
+    }
 }
