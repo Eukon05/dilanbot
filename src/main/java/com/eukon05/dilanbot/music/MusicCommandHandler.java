@@ -56,8 +56,6 @@ public class MusicCommandHandler {
                 result.playlistName().ifPresentOrElse(embed::setDescription,
                         () -> embed.setDescription(String.format(MARKDOWN_URL, firstTrackInfo.title, firstTrackInfo.uri)));
 
-                embed.setThumbnail(firstTrackInfo.artworkUrl);
-
                 responder.addEmbed(embed).send();
             } catch (DilanException e) {
                 e.handle(responder, locale);
@@ -90,8 +88,7 @@ public class MusicCommandHandler {
             result.ifPresent(track -> {
                 EmbedBuilder embed = new EmbedBuilder()
                         .setTitle(Message.NOW_PLAYING.get(locale))
-                        .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri))
-                        .setThumbnail(track.getInfo().artworkUrl);
+                        .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri));
 
                 responder.addEmbed(embed);
             });
@@ -189,8 +186,7 @@ public class MusicCommandHandler {
 
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle(Message.NOW_PLAYING.get(locale))
-                    .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri))
-                    .setThumbnail(track.getInfo().artworkUrl);
+                    .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri));
 
             responder.addEmbed(embed).send();
         } catch (DilanException e) {
@@ -216,8 +212,7 @@ public class MusicCommandHandler {
 
                 EmbedBuilder embed = new EmbedBuilder()
                         .setTitle(Message.LOOP_ENABLED.get(locale))
-                        .setDescription(String.format(MARKDOWN_URL, info.title, info.uri))
-                        .setThumbnail(info.artworkUrl);
+                        .setDescription(String.format(MARKDOWN_URL, info.title, info.uri));
 
                 responder.addEmbed(embed);
             }, () -> responder.setContent(Message.LOOP_DISABLED.get(locale)));
