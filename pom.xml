@@ -10,7 +10,7 @@
     <properties>
 
         <java.version>17</java.version>
-        <lavaplayer.version>6d14c5b2d96fd953c671cfae8f9b9ea11aa20d5a-SNAPSHOT</lavaplayer.version>
+        <lavaplayer.version>2.1.1</lavaplayer.version>
         <javacord.version>3.8.0</javacord.version>
         <gson.version>2.10.1</gson.version>
         <kcommando.version>5.1.0</kcommando.version>
@@ -21,11 +21,6 @@
     </properties>
 
     <repositories>
-        <repository>
-            <id>arbjergDev</id>
-            <name>Lavalink Repository</name>
-            <url>https://maven.lavalink.dev/snapshots</url>
-        </repository>
         <repository>
             <id>jitpack</id>
             <url>https://jitpack.io</url>

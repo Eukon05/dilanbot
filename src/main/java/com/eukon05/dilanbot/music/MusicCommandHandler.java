@@ -54,7 +54,8 @@ public class MusicCommandHandler {
                 embed.setTitle(action);
 
                 result.playlistName().ifPresentOrElse(embed::setDescription,
-                        () -> embed.setDescription(String.format(MARKDOWN_URL, firstTrackInfo.title, firstTrackInfo.uri)));
+                        () -> embed.setDescription(String.format(MARKDOWN_URL, firstTrackInfo.title, firstTrackInfo.uri))
+                                .setThumbnail(firstTrackInfo.artworkUrl));
 
                 responder.addEmbed(embed).send();
             } catch (DilanException e) {
@@ -88,7 +89,8 @@ public class MusicCommandHandler {
             result.ifPresent(track -> {
                 EmbedBuilder embed = new EmbedBuilder()
                         .setTitle(Message.NOW_PLAYING.get(locale))
-                        .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri));
+                        .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri))
+                        .setThumbnail(track.getInfo().artworkUrl);
 
                 responder.addEmbed(embed);
             });
@@ -186,7 +188,8 @@ public class MusicCommandHandler {
 
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle(Message.NOW_PLAYING.get(locale))
-                    .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri));
+                    .setDescription(String.format(MARKDOWN_URL, track.getInfo().title, track.getInfo().uri))
+                    .setThumbnail(track.getInfo().artworkUrl);
 
             responder.addEmbed(embed).send();
         } catch (DilanException e) {
@@ -212,7 +215,8 @@ public class MusicCommandHandler {
 
                 EmbedBuilder embed = new EmbedBuilder()
                         .setTitle(Message.LOOP_ENABLED.get(locale))
-                        .setDescription(String.format(MARKDOWN_URL, info.title, info.uri));
+                        .setDescription(String.format(MARKDOWN_URL, info.title, info.uri))
+                        .setThumbnail(info.artworkUrl);
 
                 responder.addEmbed(embed);
             }, () -> responder.setContent(Message.LOOP_DISABLED.get(locale)));
