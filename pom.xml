@@ -14,7 +14,7 @@
         <javacord.version>3.8.0</javacord.version>
         <gson.version>2.10.1</gson.version>
         <kcommando.version>5.1.0</kcommando.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.32</lombok.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
