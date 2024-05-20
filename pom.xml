@@ -12,7 +12,7 @@
         <java.version>17</java.version>
         <lavaplayer.version>afec211f05c9dcf0b6ee44276a02f0316ea2458a-SNAPSHOT</lavaplayer.version>
         <javacord.version>3.8.0</javacord.version>
-        <gson.version>2.10.1</gson.version>
+        <gson.version>2.11.0</gson.version>
         <kcommando.version>5.1.0</kcommando.version>
         <lombok.version>1.18.32</lombok.version>
         <maven.compiler.source>17</maven.compiler.source>
